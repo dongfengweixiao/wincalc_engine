@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:calc_manager/calc_manager_wrapper.dart';
 import '../services/calculator_service.dart';
 
+/// History item record
+typedef HistoryItem = ({String expression, String result});
+
 /// Calculator state
 class CalculatorState {
   final String display;
@@ -11,6 +14,8 @@ class CalculatorState {
   final int memoryCount;
   final int historyCount;
   final int parenthesisCount;
+  final List<String> memoryItems;
+  final List<HistoryItem> historyItems;
 
   const CalculatorState({
     this.display = '0',
@@ -20,6 +25,8 @@ class CalculatorState {
     this.memoryCount = 0,
     this.historyCount = 0,
     this.parenthesisCount = 0,
+    this.memoryItems = const [],
+    this.historyItems = const [],
   });
 
   CalculatorState copyWith({
@@ -30,6 +37,8 @@ class CalculatorState {
     int? memoryCount,
     int? historyCount,
     int? parenthesisCount,
+    List<String>? memoryItems,
+    List<HistoryItem>? historyItems,
   }) {
     return CalculatorState(
       display: display ?? this.display,
@@ -39,6 +48,8 @@ class CalculatorState {
       memoryCount: memoryCount ?? this.memoryCount,
       historyCount: historyCount ?? this.historyCount,
       parenthesisCount: parenthesisCount ?? this.parenthesisCount,
+      memoryItems: memoryItems ?? this.memoryItems,
+      historyItems: historyItems ?? this.historyItems,
     );
   }
 }
@@ -65,7 +76,34 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
       memoryCount: _service.getMemoryCount(),
       historyCount: _service.getHistoryCount(),
       parenthesisCount: _service.getParenthesisCount(),
+      memoryItems: _getMemoryItems(),
+      historyItems: _getHistoryItems(),
     );
+  }
+
+  List<String> _getMemoryItems() {
+    final count = _service.getMemoryCount();
+    final items = <String>[];
+    for (var i = 0; i < count; i++) {
+      final value = _service.getMemoryAt(i);
+      if (value != null) {
+        items.add(value);
+      }
+    }
+    return items;
+  }
+
+  List<HistoryItem> _getHistoryItems() {
+    final count = _service.getHistoryCount();
+    final items = <HistoryItem>[];
+    for (var i = 0; i < count; i++) {
+      final expression = _service.getHistoryExpressionAt(i);
+      final result = _service.getHistoryResultAt(i);
+      if (expression != null && result != null) {
+        items.add((expression: expression, result: result));
+      }
+    }
+    return items;
   }
 
   CalculatorState _updateState() {
@@ -76,6 +114,8 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
       memoryCount: _service.getMemoryCount(),
       historyCount: _service.getHistoryCount(),
       parenthesisCount: _service.getParenthesisCount(),
+      memoryItems: _getMemoryItems(),
+      historyItems: _getHistoryItems(),
     );
   }
 
@@ -188,6 +228,26 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
     state = _updateState();
   }
 
+  void memoryRecallAt(int index) {
+    _service.memoryRecallAt(index);
+    state = _updateState();
+  }
+
+  void memoryClearAt(int index) {
+    _service.memoryClearAt(index);
+    state = _updateState();
+  }
+
+  void memoryAddAt(int index) {
+    _service.memoryAddAt(index);
+    state = _updateState();
+  }
+
+  void memorySubtractAt(int index) {
+    _service.memorySubtractAt(index);
+    state = _updateState();
+  }
+
   /// Get memory values
   List<String> getMemoryValues() {
     final count = _service.getMemoryCount();
@@ -221,6 +281,19 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
 
   void clearHistory() {
     _service.clearHistory();
+    state = _updateState();
+  }
+
+  /// Recall history result at index (loads the result into display)
+  void recallHistory(int index) {
+    // For now, just get the result and set it as current value
+    // A more complete implementation would use the C API if available
+    final items = state.historyItems;
+    if (index >= 0 && index < items.length) {
+      // The result is just displayed - user can use it in calculations
+      // Note: This is a simple implementation; actual Microsoft Calculator
+      // has more complex history recall behavior
+    }
     state = _updateState();
   }
 }

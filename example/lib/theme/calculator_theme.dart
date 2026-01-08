@@ -431,6 +431,8 @@ class CalculatorTheme {
   final Color buttonAltPressed;
   final Color buttonAltDisabled;
   final Color backgroundSmoke;
+  final Color navPaneBackground;
+  final Color historyPaneBackground;
   final List<Color> equationColors;
 
   const CalculatorTheme({
@@ -454,8 +456,13 @@ class CalculatorTheme {
     required this.buttonAltPressed,
     required this.buttonAltDisabled,
     required this.backgroundSmoke,
+    required this.navPaneBackground,
+    required this.historyPaneBackground,
     required this.equationColors,
   });
+
+  /// Alias for accent color
+  Color get accentColor => accent;
 
   /// Dark theme (default Windows Calculator theme)
   static const CalculatorTheme dark = CalculatorTheme(
@@ -479,6 +486,8 @@ class CalculatorTheme {
     buttonAltPressed: CalculatorDarkColors.buttonAltPressed,
     buttonAltDisabled: CalculatorDarkColors.buttonAltDisabled,
     backgroundSmoke: CalculatorDarkColors.backgroundSmoke,
+    navPaneBackground: CalculatorDarkColors.chromeMediumLow,
+    historyPaneBackground: Color(0xFF1F1F1F),
     equationColors: CalculatorDarkColors.equationColors,
   );
 
@@ -504,6 +513,8 @@ class CalculatorTheme {
     buttonAltPressed: CalculatorLightColors.buttonAltPressed,
     buttonAltDisabled: CalculatorLightColors.buttonAltDisabled,
     backgroundSmoke: CalculatorLightColors.backgroundSmoke,
+    navPaneBackground: Color(0xFFE6E6E6),
+    historyPaneBackground: Color(0xFFEAEAEA),
     equationColors: CalculatorLightColors.equationColors,
   );
 

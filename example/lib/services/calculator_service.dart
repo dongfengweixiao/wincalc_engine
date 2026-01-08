@@ -157,6 +157,30 @@ class CalculatorService {
     }
   }
 
+  /// Load memory value at index into display
+  void memoryRecallAt(int index) {
+    if (!_isInitialized) return;
+    calculator_memory_load_at(_calculator!, index);
+  }
+
+  /// Clear memory at index
+  void memoryClearAt(int index) {
+    if (!_isInitialized) return;
+    calculator_memory_clear_at(_calculator!, index);
+  }
+
+  /// Add current value to memory at index
+  void memoryAddAt(int index) {
+    if (!_isInitialized) return;
+    calculator_memory_add_at(_calculator!, index);
+  }
+
+  /// Subtract current value from memory at index
+  void memorySubtractAt(int index) {
+    if (!_isInitialized) return;
+    calculator_memory_subtract_at(_calculator!, index);
+  }
+
   // ============================================================================
   // History Functions
   // ============================================================================

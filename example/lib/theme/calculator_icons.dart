@@ -249,6 +249,85 @@ class CalculatorIcons {
 
   /// DMS (Degrees-Minutes-Seconds)
   static const IconData dms = IconData(0xF7BD, fontFamily: _fontFamily);
+
+  // ============================================================================
+  // Navigation Menu Icons
+  // ============================================================================
+
+  /// Standard calculator
+  static const IconData standardCalculator = IconData(
+    0xE8EF,
+    fontFamily: _fontFamily,
+  );
+
+  /// Scientific calculator
+  static const IconData scientificCalculator = IconData(
+    0xF7D9,
+    fontFamily: _fontFamily,
+  );
+
+  /// Programmer calculator
+  static const IconData programmerCalculator = IconData(
+    0xECC5,
+    fontFamily: _fontFamily,
+  );
+
+  /// Date calculation
+  static const IconData dateCalculation = IconData(
+    0xE787,
+    fontFamily: _fontFamily,
+  );
+
+  /// Currency converter
+  static const IconData currency = IconData(0xEB0D, fontFamily: _fontFamily);
+
+  /// Volume converter
+  static const IconData volume = IconData(0xF7E5, fontFamily: _fontFamily);
+
+  /// Length converter
+  static const IconData length = IconData(0xECC6, fontFamily: _fontFamily);
+
+  /// Weight and mass converter
+  static const IconData weight = IconData(0xF7E6, fontFamily: _fontFamily);
+
+  /// Temperature converter
+  static const IconData temperature = IconData(0xE7A3, fontFamily: _fontFamily);
+
+  /// Energy converter
+  static const IconData energy = IconData(0xECAD, fontFamily: _fontFamily);
+
+  /// Area converter
+  static const IconData area = IconData(0xE809, fontFamily: _fontFamily);
+
+  /// Speed converter
+  static const IconData speed = IconData(0xE8B7, fontFamily: _fontFamily);
+
+  /// Time converter
+  static const IconData time = IconData(0xE823, fontFamily: _fontFamily);
+
+  /// Power converter
+  static const IconData powerConverter = IconData(
+    0xE945,
+    fontFamily: _fontFamily,
+  );
+
+  /// Data converter
+  static const IconData data = IconData(0xF7E7, fontFamily: _fontFamily);
+
+  /// Pressure converter
+  static const IconData pressure = IconData(0xEC4A, fontFamily: _fontFamily);
+
+  /// Angle converter
+  static const IconData angle = IconData(0xF7E8, fontFamily: _fontFamily);
+
+  /// History
+  static const IconData history = IconData(0xE81C, fontFamily: _fontFamily);
+
+  /// Memory
+  static const IconData memory = IconData(0xE7F4, fontFamily: _fontFamily);
+
+  /// Settings
+  static const IconData settings = IconData(0xE713, fontFamily: _fontFamily);
 }
 
 /// Extension to create Text widget from IconData using calculator font
