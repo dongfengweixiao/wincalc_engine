@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
 import '../providers/navigation_provider.dart';
+import '../providers/calculator_provider.dart';
+import '../services/calculator_service.dart';
 import '../widgets/display_panel.dart';
 import '../widgets/button_panel.dart';
+import '../widgets/scientific_button_panel.dart';
 import '../widgets/navigation_drawer.dart';
 import '../widgets/history_panel.dart';
 
@@ -14,6 +17,15 @@ class CalculatorView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(calculatorThemeProvider);
+    final currentMode = ref.watch(currentModeProvider);
+
+    // Sync calculator mode with navigation mode
+    ref.listen(currentModeProvider, (previous, next) {
+      if (previous != next) {
+        final calcMode = _viewModeToCalculatorMode(next);
+        ref.read(calculatorProvider.notifier).setMode(calcMode);
+      }
+    });
 
     return Scaffold(
       backgroundColor: theme.background,
@@ -35,7 +47,7 @@ class CalculatorView extends ConsumerWidget {
                 const CalculatorNavigationDrawer(),
 
                 // Main calculator area
-                Expanded(child: _buildCalculatorBody(ref, theme)),
+                Expanded(child: _buildCalculatorBody(ref, theme, currentMode)),
 
                 // History panel (when width >= 640)
                 if (showHistoryPanel) const HistoryMemoryPanel(),
@@ -47,7 +59,22 @@ class CalculatorView extends ConsumerWidget {
     );
   }
 
-  Widget _buildCalculatorBody(WidgetRef ref, calculatorTheme) {
+  CalculatorMode _viewModeToCalculatorMode(ViewMode mode) {
+    switch (mode) {
+      case ViewMode.standard:
+        return CalculatorMode.standard;
+      case ViewMode.scientific:
+        return CalculatorMode.scientific;
+      case ViewMode.programmer:
+        return CalculatorMode.programmer;
+    }
+  }
+
+  Widget _buildCalculatorBody(
+    WidgetRef ref,
+    calculatorTheme,
+    ViewMode currentMode,
+  ) {
     return Column(
       children: [
         // Header with history button and theme toggle
@@ -59,10 +86,25 @@ class CalculatorView extends ConsumerWidget {
         // Divider
         Divider(height: 1, color: calculatorTheme.divider),
 
-        // Button panel
-        const Expanded(flex: 5, child: StandardButtonPanel()),
+        // Button panel based on mode
+        Expanded(
+          flex: currentMode == ViewMode.scientific ? 7 : 5,
+          child: _buildButtonPanel(currentMode),
+        ),
       ],
     );
+  }
+
+  Widget _buildButtonPanel(ViewMode mode) {
+    switch (mode) {
+      case ViewMode.standard:
+        return const StandardButtonPanel();
+      case ViewMode.scientific:
+        return const ScientificButtonPanel();
+      case ViewMode.programmer:
+        // TODO: Implement programmer panel
+        return const StandardButtonPanel();
+    }
   }
 
   Widget _buildHeader(WidgetRef ref, calculatorTheme) {

@@ -199,6 +199,88 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
   void squareRoot() => sendCommand(CMD_SQRT);
   void reciprocal() => sendCommand(CMD_RECIPROCAL);
 
+  // Power functions
+  void power() => sendCommand(CMD_POWER);
+  void cube() => sendCommand(CMD_CUBE);
+  void cubeRoot() => sendCommand(CMD_CUBEROOT);
+  void yRoot() => sendCommand(CMD_ROOT);
+
+  // Exponential/Logarithmic
+  void ln() => sendCommand(CMD_LN);
+  void log() => sendCommand(CMD_LOG);
+  void logBaseY() => sendCommand(CMD_LOGBASEY);
+  void pow10() => sendCommand(CMD_POW10);
+  void pow2() => sendCommand(CMD_POW2);
+  void powE() => sendCommand(CMD_POWE);
+  void exp() => sendCommand(CMD_EXP);
+
+  // Trigonometric
+  void sin() => sendCommand(CMD_SIN);
+  void cos() => sendCommand(CMD_COS);
+  void tan() => sendCommand(CMD_TAN);
+  void asin() => sendCommand(CMD_ASIN);
+  void acos() => sendCommand(CMD_ACOS);
+  void atan() => sendCommand(CMD_ATAN);
+
+  // Additional trig
+  void sec() => sendCommand(CMD_SEC);
+  void csc() => sendCommand(CMD_CSC);
+  void cot() => sendCommand(CMD_COT);
+  void asec() => sendCommand(CMD_ASEC);
+  void acsc() => sendCommand(CMD_ACSC);
+  void acot() => sendCommand(CMD_ACOT);
+
+  // Hyperbolic
+  void sinh() => sendCommand(CMD_SINH);
+  void cosh() => sendCommand(CMD_COSH);
+  void tanh() => sendCommand(CMD_TANH);
+  void asinh() => sendCommand(CMD_ASINH);
+  void acosh() => sendCommand(CMD_ACOSH);
+  void atanh() => sendCommand(CMD_ATANH);
+
+  // Additional hyperbolic
+  void sech() => sendCommand(CMD_SECH);
+  void csch() => sendCommand(CMD_CSCH);
+  void coth() => sendCommand(CMD_COTH);
+  void asech() => sendCommand(CMD_ASECH);
+  void acsch() => sendCommand(CMD_ACSCH);
+  void acoth() => sendCommand(CMD_ACOTH);
+
+  // Other scientific functions
+  void factorial() => sendCommand(CMD_FACTORIAL);
+  void abs() => sendCommand(CMD_ABS);
+  void floor() => sendCommand(CMD_FLOOR);
+  void ceil() => sendCommand(CMD_CEIL);
+  void mod() => sendCommand(CMD_MOD);
+  void dms() => sendCommand(CMD_DMS);
+
+  // Constants
+  void pi() => sendCommand(CMD_PI);
+  void euler() => sendCommand(CMD_EULER);
+  void rand() => sendCommand(CMD_RAND);
+
+  // Parentheses
+  void openParen() => sendCommand(CMD_OPENP);
+  void closeParen() => sendCommand(CMD_CLOSEP);
+
+  // Toggle functions
+  void toggleFE() => sendCommand(CMD_FE);
+
+  // Angle mode
+  void setAngleType(int type) {
+    switch (type) {
+      case 0:
+        sendCommand(CMD_DEG);
+        break;
+      case 1:
+        sendCommand(CMD_RAD);
+        break;
+      case 2:
+        sendCommand(CMD_GRAD);
+        break;
+    }
+  }
+
   // ============================================================================
   // Memory Operations
   // ============================================================================
