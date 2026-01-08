@@ -4,15 +4,14 @@
 // ignore_for_file: type=lint, unused_import
 import 'dart:ffi' as ffi;
 
-/// 初始化计算器实例
+/// Lifecycle
 @ffi.Native<ffi.Pointer<CalculatorInstance> Function()>()
-external ffi.Pointer<CalculatorInstance> calculator_init();
+external ffi.Pointer<CalculatorInstance> calculator_create();
 
-/// 释放计算器实例
 @ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
-external void calculator_free(ffi.Pointer<CalculatorInstance> instance);
+external void calculator_destroy(ffi.Pointer<CalculatorInstance> instance);
 
-/// 设置计算器模式
+/// Mode settings
 @ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
 external void calculator_set_standard_mode(
   ffi.Pointer<CalculatorInstance> instance,
@@ -23,7 +22,17 @@ external void calculator_set_scientific_mode(
   ffi.Pointer<CalculatorInstance> instance,
 );
 
-/// 发送命令到计算器
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_set_programmer_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_current_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// Commands
 @ffi.Native<
   ffi.Void Function(ffi.Pointer<CalculatorInstance>, CalculatorCommand)
 >()
@@ -32,13 +41,455 @@ external void calculator_send_command(
   int command,
 );
 
-/// 获取结果长度
+/// Results
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_primary_display(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_expression(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_has_error(ffi.Pointer<CalculatorInstance> instance);
+
+/// State
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_reset(
+  ffi.Pointer<CalculatorInstance> instance,
+  int clear_memory,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_is_input_empty(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// Radix (number base)
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)
+>(symbol: 'calculator_set_radix')
+external void _calculator_set_radix(
+  ffi.Pointer<CalculatorInstance> instance,
+  int radix,
+);
+
+void calculator_set_radix(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcRadixType radix,
+) => _calculator_set_radix(instance, radix.value);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_radix(ffi.Pointer<CalculatorInstance> instance);
+
+/// Get result in specific radix
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_result_hex(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_result_dec(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_result_oct(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_result_bin(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+/// Binary representation for bit panel (64 chars: '0' or '1')
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_get_binary_display(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+/// Angle mode
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)
+>(symbol: 'calculator_set_angle_type')
+external void _calculator_set_angle_type(
+  ffi.Pointer<CalculatorInstance> instance,
+  int angle_type,
+);
+
+void calculator_set_angle_type(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcAngleType angle_type,
+) => _calculator_set_angle_type(instance, angle_type.value);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_angle_type(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// Memory operations
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_store(ffi.Pointer<CalculatorInstance> instance);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_recall(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_add(ffi.Pointer<CalculatorInstance> instance);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_subtract(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_clear(ffi.Pointer<CalculatorInstance> instance);
+
+/// Extended memory (multiple slots)
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_memory_get_count(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_memory_get_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_memory_load_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_memory_add_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_memory_subtract_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_memory_clear_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_memory_clear_all(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// ============================================================================
+/// History Functions
+/// ============================================================================
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_history_get_count(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_history_get_expression_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int calculator_history_get_result_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_history_load_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external int calculator_history_remove_at(
+  ffi.Pointer<CalculatorInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_history_clear(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// ============================================================================
+/// Parenthesis
+/// ============================================================================
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_parenthesis_count(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// Lifecycle
+@ffi.Native<ffi.Pointer<UnitConverterInstance> Function()>()
+external ffi.Pointer<UnitConverterInstance> unit_converter_create();
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>)>()
+external void unit_converter_destroy(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+/// Category management
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_category_count(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_category_name(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external int unit_converter_get_category_id(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external void unit_converter_set_category(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int category_id,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_current_category(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+/// Unit management
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_unit_count(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_unit_name(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_unit_abbreviation(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external int unit_converter_get_unit_id(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+);
+
+/// Current unit selection
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external void unit_converter_set_from_unit(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int unit_id,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external void unit_converter_set_to_unit(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int unit_id,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_from_unit(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_to_unit(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+/// Swap units
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>)>()
+external void unit_converter_swap_units(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+/// Input/Output
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<UnitConverterInstance>, CalculatorCommand)
+>()
+external void unit_converter_send_command(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int command,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_from_value(
+  ffi.Pointer<UnitConverterInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_to_value(
+  ffi.Pointer<UnitConverterInstance> instance,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+/// Reset
+@ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>)>()
+external void unit_converter_reset(ffi.Pointer<UnitConverterInstance> instance);
+
+/// ============================================================================
+/// Backward Compatibility (old function names)
+/// ============================================================================
+@ffi.Native<ffi.Pointer<CalculatorInstance> Function()>()
+external ffi.Pointer<CalculatorInstance> calculator_init();
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
+external void calculator_free(ffi.Pointer<CalculatorInstance> instance);
+
 @ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
 external int calculator_get_result_length(
   ffi.Pointer<CalculatorInstance> instance,
 );
 
-/// 获取当前显示的结果
 @ffi.Native<
   ffi.Int Function(
     ffi.Pointer<CalculatorInstance>,
@@ -49,21 +500,94 @@ external int calculator_get_result_length(
 external int calculator_get_result(
   ffi.Pointer<CalculatorInstance> instance,
   ffi.Pointer<ffi.Char> buffer,
-  int bufferSize,
+  int buffer_size,
 );
 
-/// 判断是否有错误
-@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
-external int calculator_has_error(ffi.Pointer<CalculatorInstance> instance);
-
-/// 重置计算器
-@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
-external void calculator_reset(ffi.Pointer<CalculatorInstance> instance);
-
-typedef CalculatorCommand = ffi.Int;
+/// ============================================================================
+/// Type Definitions
+/// ============================================================================
+typedef CalculatorCommand = ffi.Int32;
 typedef DartCalculatorCommand = int;
 
 final class CalculatorInstance extends ffi.Opaque {}
+
+final class UnitConverterInstance extends ffi.Opaque {}
+
+/// Calculator modes
+enum CalcMode {
+  CALC_MODE_STANDARD(0),
+  CALC_MODE_SCIENTIFIC(1),
+  CALC_MODE_PROGRAMMER(2);
+
+  final int value;
+  const CalcMode(this.value);
+
+  static CalcMode fromValue(int value) => switch (value) {
+    0 => CALC_MODE_STANDARD,
+    1 => CALC_MODE_SCIENTIFIC,
+    2 => CALC_MODE_PROGRAMMER,
+    _ => throw ArgumentError('Unknown value for CalcMode: $value'),
+  };
+}
+
+/// Radix types (number bases)
+enum CalcRadixType {
+  CALC_RADIX_DECIMAL(10),
+  CALC_RADIX_HEX(16),
+  CALC_RADIX_OCTAL(8),
+  CALC_RADIX_BINARY(2);
+
+  final int value;
+  const CalcRadixType(this.value);
+
+  static CalcRadixType fromValue(int value) => switch (value) {
+    10 => CALC_RADIX_DECIMAL,
+    16 => CALC_RADIX_HEX,
+    8 => CALC_RADIX_OCTAL,
+    2 => CALC_RADIX_BINARY,
+    _ => throw ArgumentError('Unknown value for CalcRadixType: $value'),
+  };
+}
+
+/// Angle types
+enum CalcAngleType {
+  CALC_ANGLE_DEGREES(0),
+  CALC_ANGLE_RADIANS(1),
+  CALC_ANGLE_GRADIANS(2);
+
+  final int value;
+  const CalcAngleType(this.value);
+
+  static CalcAngleType fromValue(int value) => switch (value) {
+    0 => CALC_ANGLE_DEGREES,
+    1 => CALC_ANGLE_RADIANS,
+    2 => CALC_ANGLE_GRADIANS,
+    _ => throw ArgumentError('Unknown value for CalcAngleType: $value'),
+  };
+}
+
+/// Memory commands
+enum MemoryCommand {
+  MEM_CMD_STORE(330),
+  MEM_CMD_LOAD(331),
+  MEM_CMD_ADD(332),
+  MEM_CMD_SUBTRACT(333),
+  MEM_CMD_CLEAR_ALL(334),
+  MEM_CMD_CLEAR(335);
+
+  final int value;
+  const MemoryCommand(this.value);
+
+  static MemoryCommand fromValue(int value) => switch (value) {
+    330 => MEM_CMD_STORE,
+    331 => MEM_CMD_LOAD,
+    332 => MEM_CMD_ADD,
+    333 => MEM_CMD_SUBTRACT,
+    334 => MEM_CMD_CLEAR_ALL,
+    335 => MEM_CMD_CLEAR,
+    _ => throw ArgumentError('Unknown value for MemoryCommand: $value'),
+  };
+}
 
 const int CMD_0 = 130;
 
@@ -85,7 +609,21 @@ const int CMD_8 = 138;
 
 const int CMD_9 = 139;
 
+const int CMD_A = 140;
+
+const int CMD_B = 141;
+
+const int CMD_C = 142;
+
+const int CMD_D = 143;
+
+const int CMD_E = 144;
+
+const int CMD_F = 145;
+
 const int CMD_DECIMAL = 84;
+
+const int CMD_NEGATE = 80;
 
 const int CMD_ADD = 93;
 
@@ -95,18 +633,204 @@ const int CMD_MULTIPLY = 92;
 
 const int CMD_DIVIDE = 91;
 
+const int CMD_MOD = 95;
+
 const int CMD_EQUALS = 121;
 
 const int CMD_CLEAR = 81;
 
+const int CMD_CENTR = 82;
+
 const int CMD_BACKSPACE = 83;
 
-const int CMD_NEGATE = 80;
+const int CMD_PERCENT = 118;
 
 const int CMD_SQUARE = 111;
 
-const int CMD_SQUARE_ROOT = 110;
+const int CMD_SQRT = 110;
 
 const int CMD_RECIPROCAL = 114;
 
-const int CMD_PERCENT = 118;
+const int CMD_SIN = 102;
+
+const int CMD_COS = 103;
+
+const int CMD_TAN = 104;
+
+const int CMD_ASIN = 202;
+
+const int CMD_ACOS = 203;
+
+const int CMD_ATAN = 204;
+
+const int CMD_SINH = 105;
+
+const int CMD_COSH = 106;
+
+const int CMD_TANH = 107;
+
+const int CMD_ASINH = 206;
+
+const int CMD_ACOSH = 207;
+
+const int CMD_ATANH = 208;
+
+const int CMD_SEC = 400;
+
+const int CMD_CSC = 402;
+
+const int CMD_COT = 404;
+
+const int CMD_ASEC = 401;
+
+const int CMD_ACSC = 403;
+
+const int CMD_ACOT = 405;
+
+const int CMD_SECH = 406;
+
+const int CMD_CSCH = 408;
+
+const int CMD_COTH = 410;
+
+const int CMD_ASECH = 407;
+
+const int CMD_ACSCH = 409;
+
+const int CMD_ACOTH = 411;
+
+const int CMD_LN = 108;
+
+const int CMD_LOG = 109;
+
+const int CMD_LOGBASEY = 500;
+
+const int CMD_POW10 = 117;
+
+const int CMD_POW2 = 412;
+
+const int CMD_POWE = 205;
+
+const int CMD_EXP = 127;
+
+const int CMD_POWER = 97;
+
+const int CMD_ROOT = 96;
+
+const int CMD_CUBE = 112;
+
+const int CMD_CUBEROOT = 116;
+
+const int CMD_FACTORIAL = 113;
+
+const int CMD_ABS = 413;
+
+const int CMD_FLOOR = 414;
+
+const int CMD_CEIL = 415;
+
+const int CMD_DMS = 115;
+
+const int CMD_PI = 120;
+
+const int CMD_EULER = 601;
+
+const int CMD_RAND = 600;
+
+const int CMD_OPENP = 128;
+
+const int CMD_CLOSEP = 129;
+
+const int CMD_INV = 146;
+
+const int CMD_FE = 119;
+
+const int CMD_HYP = 325;
+
+const int CMD_DEG = 321;
+
+const int CMD_RAD = 322;
+
+const int CMD_GRAD = 323;
+
+const int CMD_AND = 86;
+
+const int CMD_OR = 87;
+
+const int CMD_XOR = 88;
+
+const int CMD_NOT = 101;
+
+const int CMD_NAND = 501;
+
+const int CMD_NOR = 502;
+
+const int CMD_LSH = 89;
+
+const int CMD_RSH = 90;
+
+const int CMD_RSHL = 505;
+
+const int CMD_ROL = 99;
+
+const int CMD_ROR = 100;
+
+const int CMD_ROLC = 416;
+
+const int CMD_RORC = 417;
+
+const int CMD_HEX = 313;
+
+const int CMD_DEC = 314;
+
+const int CMD_OCT = 315;
+
+const int CMD_BIN = 316;
+
+const int CMD_QWORD = 317;
+
+const int CMD_DWORD = 318;
+
+const int CMD_WORD = 319;
+
+const int CMD_BYTE = 320;
+
+const int CMD_MC = 122;
+
+const int CMD_MR = 123;
+
+const int CMD_MS = 124;
+
+const int CMD_MPLUS = 125;
+
+const int CMD_MMINUS = 126;
+
+const int UNIT_CMD_0 = 0;
+
+const int UNIT_CMD_1 = 1;
+
+const int UNIT_CMD_2 = 2;
+
+const int UNIT_CMD_3 = 3;
+
+const int UNIT_CMD_4 = 4;
+
+const int UNIT_CMD_5 = 5;
+
+const int UNIT_CMD_6 = 6;
+
+const int UNIT_CMD_7 = 7;
+
+const int UNIT_CMD_8 = 8;
+
+const int UNIT_CMD_9 = 9;
+
+const int UNIT_CMD_DECIMAL = 10;
+
+const int UNIT_CMD_NEGATE = 11;
+
+const int UNIT_CMD_BACKSPACE = 12;
+
+const int UNIT_CMD_CLEAR = 13;
+
+const int UNIT_CMD_RESET = 14;
