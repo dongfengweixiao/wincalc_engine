@@ -1,0 +1,13 @@
+name: calc_manager_wrapper
+description: Wrapper for CalculatorManager
+
+output: 'lib/calc_manager_wrapper.dart'
+headers:
+  entry-points:
+    - 'src/calc_manager_wrapper/calc_manager_wrapper.h'
+  include-directives:
+    - 'src/calc_manager_wrapper/calc_manager_wrapper.h'
+comments:
+  style: any
+  length: full
+ffi-native:
