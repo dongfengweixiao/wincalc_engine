@@ -80,6 +80,22 @@ class CalculatorDarkColors {
   static const Color buttonAltDisabled = Color(0x09FFFFFF);
 
   // ============================================================================
+  // Calculator Button Colors - Subtle (Memory, Trig, Func Buttons)
+  // ============================================================================
+
+  /// Subtle button - default state (transparent)
+  static const Color buttonSubtleDefault = Color(0x00FFFFFF);
+
+  /// Subtle button - hover state (subtle fill secondary)
+  static const Color buttonSubtleHover = Color(0x0FFFFFFF);
+
+  /// Subtle button - pressed state (subtle fill tertiary)
+  static const Color buttonSubtlePressed = Color(0x0AFFFFFF);
+
+  /// Subtle button - disabled state (3.59% opacity white)
+  static const Color buttonSubtleDisabled = Color(0x09FFFFFF);
+
+  // ============================================================================
   // Text Colors
   // ============================================================================
 
@@ -210,6 +226,22 @@ class CalculatorLightColors {
 
   /// Operator button - disabled state (12.5% opacity white)
   static const Color buttonAltDisabled = Color(0x20FFFFFF);
+
+  // ============================================================================
+  // Calculator Button Colors - Subtle (Memory, Trig, Func Buttons)
+  // ============================================================================
+
+  /// Subtle button - default state (transparent)
+  static const Color buttonSubtleDefault = Color(0x00FFFFFF);
+
+  /// Subtle button - hover state (subtle fill secondary)
+  static const Color buttonSubtleHover = Color(0x09000000);
+
+  /// Subtle button - pressed state (subtle fill tertiary)
+  static const Color buttonSubtlePressed = Color(0x05000000);
+
+  /// Subtle button - disabled state (12.5% opacity white)
+  static const Color buttonSubtleDisabled = Color(0x20FFFFFF);
 
   // ============================================================================
   // Text Colors
@@ -430,6 +462,10 @@ class CalculatorTheme {
   final Color buttonAltHover;
   final Color buttonAltPressed;
   final Color buttonAltDisabled;
+  final Color buttonSubtleDefault;
+  final Color buttonSubtleHover;
+  final Color buttonSubtlePressed;
+  final Color buttonSubtleDisabled;
   final Color backgroundSmoke;
   final Color navPaneBackground;
   final Color historyPaneBackground;
@@ -455,6 +491,10 @@ class CalculatorTheme {
     required this.buttonAltHover,
     required this.buttonAltPressed,
     required this.buttonAltDisabled,
+    required this.buttonSubtleDefault,
+    required this.buttonSubtleHover,
+    required this.buttonSubtlePressed,
+    required this.buttonSubtleDisabled,
     required this.backgroundSmoke,
     required this.navPaneBackground,
     required this.historyPaneBackground,
@@ -485,6 +525,10 @@ class CalculatorTheme {
     buttonAltHover: CalculatorDarkColors.buttonAltHover,
     buttonAltPressed: CalculatorDarkColors.buttonAltPressed,
     buttonAltDisabled: CalculatorDarkColors.buttonAltDisabled,
+    buttonSubtleDefault: CalculatorDarkColors.buttonSubtleDefault,
+    buttonSubtleHover: CalculatorDarkColors.buttonSubtleHover,
+    buttonSubtlePressed: CalculatorDarkColors.buttonSubtlePressed,
+    buttonSubtleDisabled: CalculatorDarkColors.buttonSubtleDisabled,
     backgroundSmoke: CalculatorDarkColors.backgroundSmoke,
     navPaneBackground: CalculatorDarkColors.chromeMediumLow,
     historyPaneBackground: Color(0xFF1F1F1F),
@@ -512,6 +556,10 @@ class CalculatorTheme {
     buttonAltHover: CalculatorLightColors.buttonAltHover,
     buttonAltPressed: CalculatorLightColors.buttonAltPressed,
     buttonAltDisabled: CalculatorLightColors.buttonAltDisabled,
+    buttonSubtleDefault: CalculatorLightColors.buttonSubtleDefault,
+    buttonSubtleHover: CalculatorLightColors.buttonSubtleHover,
+    buttonSubtlePressed: CalculatorLightColors.buttonSubtlePressed,
+    buttonSubtleDisabled: CalculatorLightColors.buttonSubtleDisabled,
     backgroundSmoke: CalculatorLightColors.backgroundSmoke,
     navPaneBackground: Color(0xFFE6E6E6),
     historyPaneBackground: Color(0xFFEAEAEA),
@@ -520,8 +568,19 @@ class CalculatorTheme {
 
   /// Get button background color based on type and state
   Color getButtonBackground(CalcButtonType type, CalcButtonState state) {
-    final bool isAlt =
-        type == CalcButtonType.operator || type == CalcButtonType.function;
+    // Memory and trig/func buttons use subtle colors
+    if (type == CalcButtonType.memory || type == CalcButtonType.function) {
+      switch (state) {
+        case CalcButtonState.normal:
+          return buttonSubtleDefault;
+        case CalcButtonState.hover:
+          return buttonSubtleHover;
+        case CalcButtonState.pressed:
+          return buttonSubtlePressed;
+        case CalcButtonState.disabled:
+          return buttonSubtleDisabled;
+      }
+    }
 
     if (type == CalcButtonType.emphasized) {
       switch (state) {
@@ -536,7 +595,7 @@ class CalculatorTheme {
       }
     }
 
-    if (isAlt) {
+    if (type == CalcButtonType.operator) {
       switch (state) {
         case CalcButtonState.normal:
           return buttonAltDefault;

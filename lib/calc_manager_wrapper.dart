@@ -753,6 +753,8 @@ const int CMD_RAD = 322;
 
 const int CMD_GRAD = 323;
 
+const int CMD_DEGREES = 324;
+
 const int CMD_AND = 86;
 
 const int CMD_OR = 87;

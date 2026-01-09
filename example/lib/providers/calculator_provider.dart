@@ -253,6 +253,7 @@ class CalculatorNotifier extends Notifier<CalculatorState> {
   void ceil() => sendCommand(CMD_CEIL);
   void mod() => sendCommand(CMD_MOD);
   void dms() => sendCommand(CMD_DMS);
+  void degrees() => sendCommand(CMD_DEGREES);
 
   // Constants
   void pi() => sendCommand(CMD_PI);

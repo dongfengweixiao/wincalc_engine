@@ -152,6 +152,7 @@ typedef struct UnitConverterInstance UnitConverterInstance;
 #define CMD_DEG ((CalculatorCommand)321)       // Degrees mode
 #define CMD_RAD ((CalculatorCommand)322)       // Radians mode
 #define CMD_GRAD ((CalculatorCommand)323)      // Gradians mode
+#define CMD_DEGREES ((CalculatorCommand)324)   // Degrees function (convert DMS to decimal degrees)
 
 // ============================================================================
 // Calculator Commands - Programmer Mode (Bitwise)

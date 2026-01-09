@@ -133,7 +133,7 @@ class CalculatorIcons {
   );
 
   /// Memory store (MS)
-  static const IconData memoryStore = IconData(0xF752, fontFamily: _fontFamily);
+  static const IconData memoryStore = IconData(0xF756, fontFamily: _fontFamily);
 
   // ============================================================================
   // Navigation Menu Icons

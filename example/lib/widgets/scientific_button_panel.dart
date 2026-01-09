@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/calculator_provider.dart';
+import '../providers/scientific_mode_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/calculator_theme.dart';
 import '../theme/calculator_icons.dart';
@@ -82,7 +83,7 @@ enum AngleType { degrees, radians, gradians }
 enum TrigMode { normal, hyperbolic }
 
 /// Scientific calculator button panel - Microsoft Calculator layout
-/// Grid: 5 columns × 8 rows
+/// Grid: 5 columns × 10 rows
 class ScientificButtonPanel extends ConsumerWidget {
   const ScientificButtonPanel({super.key});
 
@@ -97,23 +98,32 @@ class ScientificButtonPanel extends ConsumerWidget {
       padding: const EdgeInsets.all(2),
       child: Column(
         children: [
-          // Operator Panel Row: Trig and Func buttons
-          SizedBox(
-            height: 36,
+          // Row 0: DEG and F-E buttons
+          Expanded(flex: 1, child: _buildAngleAndFERow(ref, calculator, theme)),
+
+          // Row 1: Memory buttons (MC, MR, M+, M-, MS, M)
+          Expanded(flex: 1, child: _buildMemoryButtonsRow(calculator, theme)),
+
+          // Row 2: Operator Panel - Trig and Func buttons
+          Expanded(
+            flex: 1,
             child: _buildOperatorPanelRow(ref, calculator, theme),
           ),
 
-          // Row 1: Shift, π, e, CE/C, ⌫
-          SizedBox(height: 36, child: _buildRow1(ref, calculator, theme)),
+          // Row 3: Shift, π, e, CE/C, ⌫
+          Expanded(flex: 1, child: _buildRow1(ref, calculator, theme)),
 
-          // Rows 2-7: Main grid with scientific functions, operators, and number pad
-          Expanded(child: _buildMainGrid(ref, calculator, theme, isShifted)),
+          // Rows 4-9: Main grid with scientific functions, operators, and number pad
+          Expanded(
+            flex: 6,
+            child: _buildMainGrid(ref, calculator, theme, isShifted),
+          ),
         ],
       ),
     );
   }
 
-  /// Operator Panel Row: Trig and Func flyout buttons
+  /// Row 1: Operator Panel - Trig and Func flyout buttons
   Widget _buildOperatorPanelRow(
     WidgetRef ref,
     CalculatorNotifier calculator,
@@ -121,9 +131,8 @@ class ScientificButtonPanel extends ConsumerWidget {
   ) {
     return Row(
       children: [
-        // Trig flyout (takes ~40% of space)
+        // Trig flyout
         Expanded(
-          flex: 2,
           child: _TrigFlyoutButton(
             ref: ref,
             calculator: calculator,
@@ -131,17 +140,22 @@ class ScientificButtonPanel extends ConsumerWidget {
           ),
         ),
         const SizedBox(width: 2),
-        // Func flyout (takes ~40% of space)
+        // Func flyout
         Expanded(
-          flex: 2,
           child: _FuncFlyoutButton(calculator: calculator, theme: theme),
         ),
-        const Expanded(flex: 1, child: SizedBox()),
+        const SizedBox(width: 2),
+        // Empty space (3 columns to align with row 1)
+        const Expanded(child: SizedBox()),
+        const SizedBox(width: 2),
+        const Expanded(child: SizedBox()),
+        const SizedBox(width: 2),
+        const Expanded(child: SizedBox()),
       ],
     );
   }
 
-  /// Row 1: Shift, π, e, CE/C, ⌫
+  /// Row 2: Shift, π, e, CE/C, ⌫
   /// Note: CE and C share the same position (like Microsoft Calculator)
   Widget _buildRow1(
     WidgetRef ref,
@@ -172,6 +186,7 @@ class ScientificButtonPanel extends ConsumerWidget {
             icon: CalculatorIcons.pi,
             theme: theme,
             onPressed: calculator.pi,
+            type: CalcButtonType.operator,
           ),
         ),
         // e (Euler) - uses text, not icon
@@ -180,6 +195,7 @@ class ScientificButtonPanel extends ConsumerWidget {
             text: 'e',
             theme: theme,
             onPressed: calculator.euler,
+            type: CalcButtonType.operator,
           ),
         ),
         // CE or C (shared position)
@@ -188,6 +204,7 @@ class ScientificButtonPanel extends ConsumerWidget {
             text: showCE ? 'CE' : 'C',
             theme: theme,
             onPressed: showCE ? calculator.clearEntry : calculator.clear,
+            type: CalcButtonType.operator,
           ),
         ),
         // Backspace
@@ -196,17 +213,120 @@ class ScientificButtonPanel extends ConsumerWidget {
             icon: CalculatorIcons.backspace,
             theme: theme,
             onPressed: calculator.backspace,
+            type: CalcButtonType.operator,
           ),
         ),
       ],
     );
   }
 
-  /// Main grid: Rows 2-7
+  /// Row 0: DEG and F-E buttons
+  Widget _buildAngleAndFERow(
+    WidgetRef ref,
+    CalculatorNotifier calculator,
+    CalculatorTheme theme,
+  ) {
+    final scientificMode = ref.watch(scientificModeProvider);
+
+    return Row(
+      children: [
+        // DEG button (cycles through DEG/RAD/GRAD)
+        Expanded(
+          child: _AngleButton(
+            label: scientificMode.angleType.label,
+            theme: theme,
+            onPressed: () {
+              final notifier = ref.read(scientificModeProvider.notifier);
+              notifier.toggleAngleType();
+              calculator.setAngleType(scientificMode.angleType.value);
+            },
+          ),
+        ),
+        const SizedBox(width: 2),
+        // F-E button (toggle scientific notation)
+        Expanded(
+          child: _ToggleButton(
+            label: 'F-E',
+            isSelected: scientificMode.isFEChecked,
+            theme: theme,
+            onPressed: () {
+              final notifier = ref.read(scientificModeProvider.notifier);
+              notifier.toggleFE();
+              calculator.toggleFE();
+            },
+          ),
+        ),
+        const SizedBox(width: 2),
+        // Empty space (3 columns to align with memory row)
+        const Expanded(child: SizedBox()),
+        const SizedBox(width: 2),
+        const Expanded(child: SizedBox()),
+        const SizedBox(width: 2),
+        const Expanded(child: SizedBox()),
+      ],
+    );
+  }
+
+  /// Row 1: Memory buttons (MC, MR, M+, M-, MS, M)
+  Widget _buildMemoryButtonsRow(
+    CalculatorNotifier calculator,
+    CalculatorTheme theme,
+  ) {
+    return Row(
+      children: [
+        // MC (Memory Clear)
+        Expanded(
+          child: _MemoryButton(
+            icon: CalculatorIcons.memoryClear,
+            theme: theme,
+            onPressed: calculator.memoryClear,
+          ),
+        ),
+        const SizedBox(width: 2),
+        // MR (Memory Recall)
+        Expanded(
+          child: _MemoryButton(
+            icon: CalculatorIcons.memoryRecall,
+            theme: theme,
+            onPressed: calculator.memoryRecall,
+          ),
+        ),
+        const SizedBox(width: 2),
+        // M+ (Memory Add)
+        Expanded(
+          child: _MemoryButton(
+            icon: CalculatorIcons.memoryAdd,
+            theme: theme,
+            onPressed: calculator.memoryAdd,
+          ),
+        ),
+        const SizedBox(width: 2),
+        // M- (Memory Subtract)
+        Expanded(
+          child: _MemoryButton(
+            icon: CalculatorIcons.memorySubtract,
+            theme: theme,
+            onPressed: calculator.memorySubtract,
+          ),
+        ),
+        const SizedBox(width: 2),
+        // MS (Memory Store)
+        Expanded(
+          child: _MemoryButton(
+            icon: CalculatorIcons.memoryStore,
+            theme: theme,
+            onPressed: calculator.memoryStore,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Main grid: Rows 3-8
   /// Col 0: Scientific functions (vertical strip) - 1 column
   /// Col 1-4: Middle section (operators + number pad + operators) - 4 columns total
-  ///   - Row 2: 1/x, |x|, exp, mod (spans all 4 columns)
-  ///   - Rows 3-7: Buttons in columns 1-3, operators in column 4
+  ///   - Row 3: 1/x, |x|, exp, mod (spans all 4 columns)
+  ///   - Rows 4-8: Buttons in columns 1-3, operators in column 4
   Widget _buildMainGrid(
     WidgetRef ref,
     CalculatorNotifier calculator,
@@ -243,6 +363,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.square,
               theme: theme,
               onPressed: calculator.square,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -250,6 +371,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.squareRoot,
               theme: theme,
               onPressed: calculator.squareRoot,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -257,6 +379,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.power,
               theme: theme,
               onPressed: calculator.power,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -264,6 +387,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.powerOf10,
               theme: theme,
               onPressed: calculator.pow10,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -271,6 +395,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               text: 'log',
               theme: theme,
               onPressed: calculator.log,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -278,6 +403,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               text: 'ln',
               theme: theme,
               onPressed: calculator.ln,
+              type: CalcButtonType.operator,
             ),
           ),
         ],
@@ -290,6 +416,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.cube,
               theme: theme,
               onPressed: calculator.cube,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -297,6 +424,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.cubeRoot,
               theme: theme,
               onPressed: calculator.cubeRoot,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -304,6 +432,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.yRoot,
               theme: theme,
               onPressed: calculator.yRoot,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -311,6 +440,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.powerOf2,
               theme: theme,
               onPressed: calculator.pow2,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -318,6 +448,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               text: 'logᵧ',
               theme: theme,
               onPressed: calculator.logBaseY,
+              type: CalcButtonType.operator,
             ),
           ),
           Expanded(
@@ -325,6 +456,7 @@ class ScientificButtonPanel extends ConsumerWidget {
               icon: CalculatorIcons.powerOfE,
               theme: theme,
               onPressed: calculator.powE,
+              type: CalcButtonType.operator,
             ),
           ),
         ],
@@ -349,6 +481,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.reciprocal,
                   theme: theme,
                   onPressed: calculator.reciprocal,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -356,6 +489,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.absoluteValue,
                   theme: theme,
                   onPressed: calculator.abs,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -363,6 +497,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   text: 'exp',
                   theme: theme,
                   onPressed: calculator.exp,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -370,6 +505,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   text: 'mod',
                   theme: theme,
                   onPressed: calculator.mod,
+                  type: CalcButtonType.operator,
                 ),
               ),
             ],
@@ -385,6 +521,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   text: '(',
                   theme: theme,
                   onPressed: calculator.openParen,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -392,6 +529,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   text: ')',
                   theme: theme,
                   onPressed: calculator.closeParen,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -399,6 +537,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.factorial,
                   theme: theme,
                   onPressed: calculator.factorial,
+                  type: CalcButtonType.operator,
                 ),
               ),
               Expanded(
@@ -406,6 +545,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.divide,
                   theme: theme,
                   onPressed: calculator.divide,
+                  type: CalcButtonType.operator,
                 ),
               ),
             ],
@@ -442,6 +582,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.multiply,
                   theme: theme,
                   onPressed: calculator.multiply,
+                  type: CalcButtonType.operator,
                 ),
               ),
             ],
@@ -478,6 +619,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.minus,
                   theme: theme,
                   onPressed: calculator.subtract,
+                  type: CalcButtonType.operator,
                 ),
               ),
             ],
@@ -514,6 +656,7 @@ class ScientificButtonPanel extends ConsumerWidget {
                   icon: CalculatorIcons.plus,
                   theme: theme,
                   onPressed: calculator.add,
+                  type: CalcButtonType.operator,
                 ),
               ),
             ],
@@ -713,11 +856,13 @@ class _TextButton extends StatefulWidget {
   final String text;
   final CalculatorTheme theme;
   final VoidCallback onPressed;
+  final CalcButtonType type;
 
   const _TextButton({
     required this.text,
     required this.theme,
     required this.onPressed,
+    this.type = CalcButtonType.function,
   });
 
   @override
@@ -737,11 +882,11 @@ class _TextButtonState extends State<_TextButton> {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = widget.theme.getButtonBackground(
-      CalcButtonType.function,
+      widget.type,
       _buttonState,
     );
     final foregroundColor = widget.theme.getButtonForeground(
-      CalcButtonType.function,
+      widget.type,
       _buttonState,
     );
 
@@ -775,16 +920,18 @@ class _TextButtonState extends State<_TextButton> {
   }
 }
 
-/// Function text button (for log, ln, exp, mod)
+/// Function text button (for log, ln, exp, mod, parentheses)
 class _FunctionTextButton extends StatefulWidget {
   final String text;
   final CalculatorTheme theme;
   final VoidCallback onPressed;
+  final CalcButtonType type;
 
   const _FunctionTextButton({
     required this.text,
     required this.theme,
     required this.onPressed,
+    this.type = CalcButtonType.function,
   });
 
   @override
@@ -804,11 +951,11 @@ class _FunctionTextButtonState extends State<_FunctionTextButton> {
   @override
   Widget build(BuildContext context) {
     final backgroundColor = widget.theme.getButtonBackground(
-      CalcButtonType.function,
+      widget.type,
       _buttonState,
     );
     final foregroundColor = widget.theme.getButtonForeground(
-      CalcButtonType.function,
+      widget.type,
       _buttonState,
     );
 
@@ -959,74 +1106,6 @@ class _SmallButtonState extends State<_SmallButton> {
 }
 
 /// Angle mode button
-class _AngleButton extends StatefulWidget {
-  final String text;
-  final bool isSelected;
-  final CalculatorTheme theme;
-  final VoidCallback onPressed;
-
-  const _AngleButton({
-    required this.text,
-    required this.isSelected,
-    required this.theme,
-    required this.onPressed,
-  });
-
-  @override
-  State<_AngleButton> createState() => _AngleButtonState();
-}
-
-class _AngleButtonState extends State<_AngleButton> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    Color backgroundColor;
-    Color foregroundColor;
-
-    if (widget.isSelected) {
-      backgroundColor = widget.theme.accentColor;
-      foregroundColor = widget.theme.brightness == Brightness.dark
-          ? Colors.black
-          : Colors.white;
-    } else if (_isHovered) {
-      backgroundColor = widget.theme.buttonAltHover;
-      foregroundColor = widget.theme.textPrimary;
-    } else {
-      backgroundColor = widget.theme.buttonAltDefault;
-      foregroundColor = widget.theme.textPrimary;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(1),
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: GestureDetector(
-          onTap: widget.onPressed,
-          child: Container(
-            width: 44,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Center(
-              child: Text(
-                widget.text,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  color: foregroundColor,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // =============================================================================
 // Flyout Menus
 // =============================================================================
@@ -1084,27 +1163,38 @@ class _TrigFlyoutButtonState extends State<_TrigFlyoutButton> {
           child: Container(
             decoration: BoxDecoration(
               color: _isHovered
-                  ? widget.theme.buttonAltHover
-                  : widget.theme.buttonAltDefault,
+                  ? widget.theme.buttonSubtleHover
+                  : widget.theme.buttonSubtleDefault,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Trig',
-                  style: TextStyle(
-                    color: widget.theme.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    String.fromCharCode(CalculatorIcons.trigButton.codePoint),
+                    style: TextStyle(
+                      fontFamily: CalculatorIcons.trigButton.fontFamily,
+                      fontSize: 14,
+                      color: widget.theme.textPrimary,
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: widget.theme.textPrimary,
-                  size: 16,
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Text(
+                    '三角学',
+                    style: TextStyle(
+                      color: widget.theme.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: widget.theme.textPrimary,
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1151,41 +1241,8 @@ class _TrigFlyoutMenu extends ConsumerWidget {
             elevation: 8,
             child: Container(
               padding: const EdgeInsets.all(8),
-              width: 260,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Controls row
-                  Row(
-                    children: [
-                      _MenuToggle(
-                        icon: CalculatorIcons.shift,
-                        isSelected: trigShift,
-                        theme: theme,
-                        onPressed: () {
-                          ref.read(trigShiftProvider.notifier).state =
-                              !trigShift;
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _MenuTextToggle(
-                        text: 'hyp',
-                        isSelected: trigMode == TrigMode.hyperbolic,
-                        theme: theme,
-                        onPressed: () {
-                          ref
-                              .read(trigModeProvider.notifier)
-                              .state = trigMode == TrigMode.hyperbolic
-                              ? TrigMode.normal
-                              : TrigMode.hyperbolic;
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _buildTrigButtons(context, trigShift, trigMode),
-                ],
-              ),
+              width: 280,
+              child: _buildTrigButtons(context, trigShift, trigMode),
             ),
           ),
         ),
@@ -1198,260 +1255,210 @@ class _TrigFlyoutMenu extends ConsumerWidget {
     bool isInverse,
     TrigMode mode,
   ) {
+    // Determine button labels based on mode
+    String row1Col2, row1Col3, row1Col4;
+    String row2Col2, row2Col3, row2Col4;
+    VoidCallback row1Col2Fn, row1Col3Fn, row1Col4Fn;
+    VoidCallback row2Col2Fn, row2Col3Fn, row2Col4Fn;
+
     if (mode == TrigMode.normal) {
       if (!isInverse) {
-        return Column(
-          children: [
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sin',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.sin();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cos',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.cos();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'tan',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.tan();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sec',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.sec();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'csc',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.csc();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cot',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.cot();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
+        // Normal mode: sin, cos, tan / sec, csc, cot
+        row1Col2 = 'sin';
+        row1Col3 = 'cos';
+        row1Col4 = 'tan';
+        row2Col2 = 'sec';
+        row2Col3 = 'csc';
+        row2Col4 = 'cot';
+        row1Col2Fn = () {
+          calculator.sin();
+          Navigator.pop(context);
+        };
+        row1Col3Fn = () {
+          calculator.cos();
+          Navigator.pop(context);
+        };
+        row1Col4Fn = () {
+          calculator.tan();
+          Navigator.pop(context);
+        };
+        row2Col2Fn = () {
+          calculator.sec();
+          Navigator.pop(context);
+        };
+        row2Col3Fn = () {
+          calculator.csc();
+          Navigator.pop(context);
+        };
+        row2Col4Fn = () {
+          calculator.cot();
+          Navigator.pop(context);
+        };
       } else {
-        return Column(
-          children: [
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sin⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.asin();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cos⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acos();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'tan⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.atan();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sec⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.asec();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'csc⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acsc();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cot⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acot();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
+        // Inverse mode: sin⁻¹, cos⁻¹, tan⁻¹ / sec⁻¹, csc⁻¹, cot⁻¹
+        row1Col2 = 'sin⁻¹';
+        row1Col3 = 'cos⁻¹';
+        row1Col4 = 'tan⁻¹';
+        row2Col2 = 'sec⁻¹';
+        row2Col3 = 'csc⁻¹';
+        row2Col4 = 'cot⁻¹';
+        row1Col2Fn = () {
+          calculator.asin();
+          Navigator.pop(context);
+        };
+        row1Col3Fn = () {
+          calculator.acos();
+          Navigator.pop(context);
+        };
+        row1Col4Fn = () {
+          calculator.atan();
+          Navigator.pop(context);
+        };
+        row2Col2Fn = () {
+          calculator.asec();
+          Navigator.pop(context);
+        };
+        row2Col3Fn = () {
+          calculator.acsc();
+          Navigator.pop(context);
+        };
+        row2Col4Fn = () {
+          calculator.acot();
+          Navigator.pop(context);
+        };
       }
     } else {
-      // Hyperbolic
+      // Hyperbolic mode
       if (!isInverse) {
-        return Column(
-          children: [
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sinh',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.sinh();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cosh',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.cosh();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'tanh',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.tanh();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sech',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.sech();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'csch',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.csch();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'coth',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.coth();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
+        row1Col2 = 'sinh';
+        row1Col3 = 'cosh';
+        row1Col4 = 'tanh';
+        row2Col2 = 'sech';
+        row2Col3 = 'csch';
+        row2Col4 = 'coth';
+        row1Col2Fn = () {
+          calculator.sinh();
+          Navigator.pop(context);
+        };
+        row1Col3Fn = () {
+          calculator.cosh();
+          Navigator.pop(context);
+        };
+        row1Col4Fn = () {
+          calculator.tanh();
+          Navigator.pop(context);
+        };
+        row2Col2Fn = () {
+          calculator.sech();
+          Navigator.pop(context);
+        };
+        row2Col3Fn = () {
+          calculator.csch();
+          Navigator.pop(context);
+        };
+        row2Col4Fn = () {
+          calculator.coth();
+          Navigator.pop(context);
+        };
       } else {
-        return Column(
-          children: [
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sinh⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.asinh();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'cosh⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acosh();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'tanh⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.atanh();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                _TrigTextButton(
-                  text: 'sech⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.asech();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'csch⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acsch();
-                    Navigator.pop(context);
-                  },
-                ),
-                _TrigTextButton(
-                  text: 'coth⁻¹',
-                  theme: theme,
-                  onPressed: () {
-                    calculator.acoth();
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
+        row1Col2 = 'sinh⁻¹';
+        row1Col3 = 'cosh⁻¹';
+        row1Col4 = 'tanh⁻¹';
+        row2Col2 = 'sech⁻¹';
+        row2Col3 = 'csch⁻¹';
+        row2Col4 = 'coth⁻¹';
+        row1Col2Fn = () {
+          calculator.asinh();
+          Navigator.pop(context);
+        };
+        row1Col3Fn = () {
+          calculator.acosh();
+          Navigator.pop(context);
+        };
+        row1Col4Fn = () {
+          calculator.atanh();
+          Navigator.pop(context);
+        };
+        row2Col2Fn = () {
+          calculator.asech();
+          Navigator.pop(context);
+        };
+        row2Col3Fn = () {
+          calculator.acsch();
+          Navigator.pop(context);
+        };
+        row2Col4Fn = () {
+          calculator.acoth();
+          Navigator.pop(context);
+        };
       }
     }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Row 1: 2nd | sin | cos | tan
+        Row(
+          children: [
+            _MenuToggle(
+              icon: CalculatorIcons.shift,
+              isSelected: isInverse,
+              theme: theme,
+              onPressed: () {
+                ref.read(trigShiftProvider.notifier).toggle();
+              },
+            ),
+            _TrigTextButton(
+              text: row1Col2,
+              theme: theme,
+              onPressed: row1Col2Fn,
+            ),
+            _TrigTextButton(
+              text: row1Col3,
+              theme: theme,
+              onPressed: row1Col3Fn,
+            ),
+            _TrigTextButton(
+              text: row1Col4,
+              theme: theme,
+              onPressed: row1Col4Fn,
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        // Row 2: hyp | sec | csc | cot
+        Row(
+          children: [
+            _MenuTextToggle(
+              text: 'hyp',
+              isSelected: mode == TrigMode.hyperbolic,
+              theme: theme,
+              onPressed: () {
+                final newMode = mode == TrigMode.hyperbolic
+                    ? TrigMode.normal
+                    : TrigMode.hyperbolic;
+                ref.read(trigModeProvider.notifier).setTrigMode(newMode);
+              },
+            ),
+            _TrigTextButton(
+              text: row2Col2,
+              theme: theme,
+              onPressed: row2Col2Fn,
+            ),
+            _TrigTextButton(
+              text: row2Col3,
+              theme: theme,
+              onPressed: row2Col3Fn,
+            ),
+            _TrigTextButton(
+              text: row2Col4,
+              theme: theme,
+              onPressed: row2Col4Fn,
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -1478,34 +1485,38 @@ class _MenuToggleState extends State<_MenuToggle> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        child: Container(
-          width: 44,
-          height: 32,
-          decoration: BoxDecoration(
-            color: widget.isSelected
-                ? widget.theme.accentColor.withValues(alpha: 0.3)
-                : (_isHovered
-                      ? widget.theme.buttonAltHover
-                      : widget.theme.buttonAltDefault),
-            borderRadius: BorderRadius.circular(4),
-            border: widget.isSelected
-                ? Border.all(color: widget.theme.accentColor, width: 1)
-                : null,
-          ),
-          child: Center(
-            child: Text(
-              String.fromCharCode(widget.icon.codePoint),
-              style: TextStyle(
-                fontFamily: widget.icon.fontFamily,
-                fontSize: 14,
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: GestureDetector(
+            onTap: widget.onPressed,
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
                 color: widget.isSelected
-                    ? widget.theme.accentColor
-                    : widget.theme.textPrimary,
+                    ? widget.theme.accentColor.withValues(alpha: 0.3)
+                    : (_isHovered
+                          ? widget.theme.buttonAltHover
+                          : widget.theme.buttonAltDefault),
+                borderRadius: BorderRadius.circular(4),
+                border: widget.isSelected
+                    ? Border.all(color: widget.theme.accentColor, width: 1)
+                    : null,
+              ),
+              child: Center(
+                child: Text(
+                  String.fromCharCode(widget.icon.codePoint),
+                  style: TextStyle(
+                    fontFamily: widget.icon.fontFamily,
+                    fontSize: 14,
+                    color: widget.isSelected
+                        ? widget.theme.accentColor
+                        : widget.theme.textPrimary,
+                  ),
+                ),
               ),
             ),
           ),
@@ -1538,33 +1549,37 @@ class _MenuTextToggleState extends State<_MenuTextToggle> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        child: Container(
-          width: 44,
-          height: 32,
-          decoration: BoxDecoration(
-            color: widget.isSelected
-                ? widget.theme.accentColor.withValues(alpha: 0.3)
-                : (_isHovered
-                      ? widget.theme.buttonAltHover
-                      : widget.theme.buttonAltDefault),
-            borderRadius: BorderRadius.circular(4),
-            border: widget.isSelected
-                ? Border.all(color: widget.theme.accentColor, width: 1)
-                : null,
-          ),
-          child: Center(
-            child: Text(
-              widget.text,
-              style: TextStyle(
-                fontSize: 12,
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: GestureDetector(
+            onTap: widget.onPressed,
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
                 color: widget.isSelected
-                    ? widget.theme.accentColor
-                    : widget.theme.textPrimary,
+                    ? widget.theme.accentColor.withValues(alpha: 0.3)
+                    : (_isHovered
+                          ? widget.theme.buttonAltHover
+                          : widget.theme.buttonAltDefault),
+                borderRadius: BorderRadius.circular(4),
+                border: widget.isSelected
+                    ? Border.all(color: widget.theme.accentColor, width: 1)
+                    : null,
+              ),
+              child: Center(
+                child: Text(
+                  widget.text,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: widget.isSelected
+                        ? widget.theme.accentColor
+                        : widget.theme.textPrimary,
+                  ),
+                ),
               ),
             ),
           ),
@@ -1785,27 +1800,38 @@ class _FuncFlyoutButtonState extends State<_FuncFlyoutButton> {
           child: Container(
             decoration: BoxDecoration(
               color: _isHovered
-                  ? widget.theme.buttonAltHover
-                  : widget.theme.buttonAltDefault,
+                  ? widget.theme.buttonSubtleHover
+                  : widget.theme.buttonSubtleDefault,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Func',
-                  style: TextStyle(
-                    color: widget.theme.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    String.fromCharCode(CalculatorIcons.funcButton.codePoint),
+                    style: TextStyle(
+                      fontFamily: CalculatorIcons.funcButton.fontFamily,
+                      fontSize: 14,
+                      color: widget.theme.textPrimary,
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.arrow_drop_down,
-                  color: widget.theme.textPrimary,
-                  size: 16,
-                ),
-              ],
+                  const SizedBox(width: 4),
+                  Text(
+                    '函数',
+                    style: TextStyle(
+                      color: widget.theme.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.arrow_drop_down,
+                    color: widget.theme.textPrimary,
+                    size: 16,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1898,7 +1924,14 @@ class _FuncFlyoutMenu extends StatelessWidget {
                           Navigator.pop(context);
                         },
                       ),
-                      const Expanded(child: SizedBox()),
+                      _FuncIconButton(
+                        icon: CalculatorIcons.degrees,
+                        theme: theme,
+                        onPressed: () {
+                          calculator.degrees();
+                          Navigator.pop(context);
+                        },
+                      ),
                     ],
                   ),
                 ],
@@ -1907,6 +1940,227 @@ class _FuncFlyoutMenu extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+// =============================================================================
+// Memory Button Widget
+// =============================================================================
+
+/// Memory button with icon only (no text label)
+class _MemoryButton extends StatefulWidget {
+  final IconData icon;
+  final CalculatorTheme theme;
+  final VoidCallback onPressed;
+
+  const _MemoryButton({
+    required this.icon,
+    required this.theme,
+    required this.onPressed,
+  });
+
+  @override
+  State<_MemoryButton> createState() => _MemoryButtonState();
+}
+
+class _MemoryButtonState extends State<_MemoryButton> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  CalcButtonState get _buttonState {
+    if (_isPressed) return CalcButtonState.pressed;
+    if (_isHovered) return CalcButtonState.hover;
+    return CalcButtonState.normal;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(1),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onPressed();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.theme.getButtonBackground(
+                CalcButtonType.memory,
+                _buttonState,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                String.fromCharCode(widget.icon.codePoint),
+                style: TextStyle(
+                  fontFamily: widget.icon.fontFamily,
+                  fontSize: 14,
+                  color: widget.theme.getButtonForeground(
+                    CalcButtonType.memory,
+                    _buttonState,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// =============================================================================
+// Angle and Toggle Buttons (DEG, F-E)
+// =============================================================================
+
+/// Angle type button (DEG/RAD/GRAD)
+class _AngleButton extends StatefulWidget {
+  final String label;
+  final CalculatorTheme theme;
+  final VoidCallback onPressed;
+
+  const _AngleButton({
+    required this.label,
+    required this.theme,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AngleButton> createState() => _AngleButtonState();
+}
+
+class _AngleButtonState extends State<_AngleButton> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  CalcButtonState get _buttonState {
+    if (_isPressed) return CalcButtonState.pressed;
+    if (_isHovered) return CalcButtonState.hover;
+    return CalcButtonState.normal;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(1),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onPressed();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.theme.getButtonBackground(
+                CalcButtonType.memory,
+                _buttonState,
+              ),
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: widget.theme.getButtonForeground(
+                    CalcButtonType.memory,
+                    _buttonState,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Toggle button (F-E)
+class _ToggleButton extends StatefulWidget {
+  final String label;
+  final bool isSelected;
+  final CalculatorTheme theme;
+  final VoidCallback onPressed;
+
+  const _ToggleButton({
+    required this.label,
+    required this.isSelected,
+    required this.theme,
+    required this.onPressed,
+  });
+
+  @override
+  State<_ToggleButton> createState() => _ToggleButtonState();
+}
+
+class _ToggleButtonState extends State<_ToggleButton> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  CalcButtonState get _buttonState {
+    if (_isPressed) return CalcButtonState.pressed;
+    if (_isHovered) return CalcButtonState.hover;
+    return CalcButtonState.normal;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(1),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) {
+            setState(() => _isPressed = false);
+            widget.onPressed();
+          },
+          onTapCancel: () => setState(() => _isPressed = false),
+          child: Container(
+            decoration: BoxDecoration(
+              color: widget.isSelected
+                  ? widget.theme.accentColor.withValues(alpha: 0.3)
+                  : widget.theme.getButtonBackground(
+                      CalcButtonType.memory,
+                      _buttonState,
+                    ),
+              borderRadius: BorderRadius.circular(4),
+              border: widget.isSelected
+                  ? Border.all(color: widget.theme.accentColor, width: 1)
+                  : null,
+            ),
+            child: Center(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: widget.isSelected
+                      ? widget.theme.accentColor
+                      : widget.theme.getButtonForeground(
+                          CalcButtonType.memory,
+                          _buttonState,
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
