@@ -129,7 +129,7 @@ class _CalculatorViewState extends ConsumerState<CalculatorView> {
   Widget _buildHeader(BuildContext context, WidgetRef ref, calculatorTheme) {
     final showHistoryPanel = ref.watch(showHistoryPanelProvider);
 
-    return Container(
+    return SizedBox(
       height: 48,
       child: Row(
         children: [

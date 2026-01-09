@@ -70,8 +70,8 @@ class ScientificModeNotifier extends Notifier<ScientificModeState> {
 /// Provider for scientific mode state
 final scientificModeProvider =
     NotifierProvider<ScientificModeNotifier, ScientificModeState>(() {
-  return ScientificModeNotifier();
-});
+      return ScientificModeNotifier();
+    });
 
 /// Scientific calculator shift state provider
 final scientificShiftProvider = NotifierProvider<ScientificShiftNotifier, bool>(

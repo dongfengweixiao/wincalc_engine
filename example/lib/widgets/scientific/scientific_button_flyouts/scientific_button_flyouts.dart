@@ -1,4 +1,4 @@
-// Scientific Calculator Button Flyouts
-// Exports all flyout components for easy importing
+// Scientific Calculator Button Flyouts - Module Export
+// Barrel export file for simplified importing
 
 export 'flyouts.dart';
