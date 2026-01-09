@@ -8,17 +8,17 @@ void main() async {
   // Initialize window manager
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
-  
+
   // Set window options
   WindowOptions windowOptions = WindowOptions(
     minimumSize: const Size(320, 500),
   );
-  
+
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     await windowManager.show();
     await windowManager.focus();
   });
-  
+
   runApp(const ProviderScope(child: CalculatorApp()));
 }
 

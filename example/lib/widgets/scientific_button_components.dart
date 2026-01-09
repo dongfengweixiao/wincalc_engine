@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/calculator_theme.dart';
-import '../theme/calculator_icons.dart';
 
 /// Icon button with calculator styling
 class ScientificIconButton extends StatefulWidget {

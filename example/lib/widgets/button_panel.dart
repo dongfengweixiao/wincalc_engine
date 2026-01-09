@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/calculator_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/calculator_theme.dart';
+import '../theme/calculator_font_sizes.dart';
 import '../theme/calculator_icons.dart';
 import 'calculator_button.dart';
 
