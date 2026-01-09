@@ -16,7 +16,7 @@ class StandardButtonPanel extends ConsumerWidget {
     final theme = ref.watch(calculatorThemeProvider);
 
     return Container(
-      color: theme.surface,
+      color: theme.background,
       padding: const EdgeInsets.all(4),
       child: Column(
         children: [

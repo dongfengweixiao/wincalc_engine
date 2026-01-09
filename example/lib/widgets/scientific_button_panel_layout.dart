@@ -21,7 +21,7 @@ class ScientificButtonPanelLayout extends ConsumerWidget {
     final isShifted = ref.watch(scientificShiftProvider);
 
     return Container(
-      color: theme.surface,
+      color: theme.background,
       padding: const EdgeInsets.all(2),
       child: Column(
         children: [

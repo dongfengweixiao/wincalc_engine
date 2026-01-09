@@ -35,7 +35,7 @@ class HistoryMemoryPanel extends ConsumerWidget {
 
     return Container(
       width: 320,
-      color: theme.historyPaneBackground,
+      color: theme.background,
       child: Column(
         children: [
           // Tab bar
