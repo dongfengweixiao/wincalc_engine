@@ -263,6 +263,10 @@ typedef enum {
 CALC_API CalculatorInstance* calculator_create(void);
 CALC_API void calculator_destroy(CalculatorInstance* instance);
 
+// History load mode management
+CALC_API int calculator_is_in_history_load_mode(CalculatorInstance* instance);
+CALC_API void calculator_set_history_load_mode(CalculatorInstance* instance, int enabled);
+
 // Mode settings
 CALC_API void calculator_set_standard_mode(CalculatorInstance* instance);
 CALC_API void calculator_set_scientific_mode(CalculatorInstance* instance);

@@ -16,8 +16,10 @@
 #include <CalculatorManager.h>
 #include <CalculatorResource.h>
 #include <EngineStrings.h>
+#include <ExpressionCommandInterface.h>
 #include <ICalcDisplay.h>
 #include <UnitConverter.h>
+#include "Header Files/CCommand.h"  // For IDC_EQU
 
 // ============================================================================
 // Helper: Wide string to UTF-8 conversion
@@ -285,6 +287,7 @@ struct CalculatorInstance {
     CalcMode currentMode = CALC_MODE_STANDARD;
     CalcRadixType currentRadix = CALC_RADIX_DECIMAL;
     CalcAngleType currentAngleType = CALC_ANGLE_DEGREES;
+    bool isInHistoryLoadMode = false;  // Track history item load mode
 };
 
 // ============================================================================
@@ -335,9 +338,15 @@ int calculator_get_current_mode(CalculatorInstance* instance) {
 }
 
 void calculator_send_command(CalculatorInstance* instance, CalculatorCommand command) {
-    if (instance && instance->manager) {
-        instance->manager->SendCommand(static_cast<CalculationManager::Command>(command));
+    if (!instance || !instance->manager) return;
+
+    // If we're in history load mode, just clear the flag and continue normally
+    // Don't try to recreate the deleted history entry as it may cause display issues
+    if (instance->isInHistoryLoadMode) {
+        instance->isInHistoryLoadMode = false;
     }
+
+    instance->manager->SendCommand(static_cast<CalculationManager::Command>(command));
 }
 
 int calculator_get_primary_display(CalculatorInstance* instance, char* buffer, int buffer_size) {
@@ -597,16 +606,88 @@ int calculator_history_get_result_at(CalculatorInstance* instance, int index, ch
     return copy_to_buffer(utf8, buffer, buffer_size);
 }
 
+int calculator_is_in_history_load_mode(CalculatorInstance* instance) {
+    if (instance) {
+        return instance->isInHistoryLoadMode ? 1 : 0;
+    }
+    return 0;
+}
+
+void calculator_set_history_load_mode(CalculatorInstance* instance, int enabled) {
+    if (instance) {
+        instance->isInHistoryLoadMode = (enabled != 0);
+    }
+}
+
 void calculator_history_load_at(CalculatorInstance* instance, int index) {
     if (!instance || !instance->manager) return;
 
     const auto& history = instance->manager->GetHistoryItems();
-    if (index >= 0 && index < static_cast<int>(history.size())) {
-        instance->manager->SetInHistoryItemLoadMode(true);
-        // Re-execute the history item by setting its commands
-        // This would require more complex implementation
-        instance->manager->SetInHistoryItemLoadMode(false);
+    if (index < 0 || index >= static_cast<int>(history.size())) return;
+
+    auto& historyItem = history[index];
+    auto& commands = historyItem->historyItemVector.spCommands;
+
+    if (!commands || commands->empty()) return;
+
+    // Reset calculator to clear current state (but keep memory)
+    instance->manager->Reset(false);
+
+    // Resend all commands from the history item
+    for (auto& command : *commands) {
+        auto commandType = command->GetCommandType();
+
+        switch (commandType) {
+            case CalculationManager::CommandType::UnaryCommand: {
+                auto unaryCmd = static_cast<IUnaryCommand*>(command.get());
+                const auto& cmdList = unaryCmd->GetCommands();
+                if (cmdList && !cmdList->empty()) {
+                    for (int cmd : *cmdList) {
+                        instance->manager->SendCommand(static_cast<CalculationManager::Command>(cmd));
+                    }
+                }
+                break;
+            }
+            case CalculationManager::CommandType::BinaryCommand: {
+                auto binaryCmd = static_cast<IBinaryCommand*>(command.get());
+                instance->manager->SendCommand(static_cast<CalculationManager::Command>(binaryCmd->GetCommand()));
+                break;
+            }
+            case CalculationManager::CommandType::OperandCommand: {
+                auto opndCmd = static_cast<IOpndCommand*>(command.get());
+                const auto& cmdList = opndCmd->GetCommands();
+                if (cmdList && !cmdList->empty()) {
+                    for (int cmd : *cmdList) {
+                        instance->manager->SendCommand(static_cast<CalculationManager::Command>(cmd));
+                    }
+                }
+                break;
+            }
+            case CalculationManager::CommandType::Parentheses: {
+                auto parenCmd = static_cast<IParenthesisCommand*>(command.get());
+                instance->manager->SendCommand(static_cast<CalculationManager::Command>(parenCmd->GetCommand()));
+                break;
+            }
+            default:
+                break;
+        }
     }
+
+    // Send equals to update display and create history entry
+    instance->manager->SendCommand(static_cast<CalculationManager::Command>(IDC_EQU));
+
+    // Immediately remove the history entry that was just created
+    // This matches Microsoft Calculator's behavior where clicking history
+    // doesn't create a new entry until the user continues with an operator
+    const auto& newHistory = instance->manager->GetHistoryItems();
+    if (!newHistory.empty()) {
+        instance->manager->RemoveHistoryItem(static_cast<unsigned int>(newHistory.size() - 1));
+    }
+
+    // Set flag to track that we're in "history load" state
+    // When user clicks an operator, we'll stay in this mode so no new entry is created
+    // for that operator, but instead the loaded expression will be finalized in history
+    instance->isInHistoryLoadMode = true;
 }
 
 int calculator_history_remove_at(CalculatorInstance* instance, int index) {

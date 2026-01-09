@@ -231,6 +231,12 @@ class CalculatorService {
     }
   }
 
+  /// Load history result at index into display
+  void loadHistoryAt(int index) {
+    if (!_isInitialized) return;
+    calculator_history_load_at(_calculator!, index);
+  }
+
   /// Clear history
   void clearHistory() {
     if (!_isInitialized) return;

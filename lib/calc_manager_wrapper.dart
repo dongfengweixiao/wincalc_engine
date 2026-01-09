@@ -11,6 +11,18 @@ external ffi.Pointer<CalculatorInstance> calculator_create();
 @ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
 external void calculator_destroy(ffi.Pointer<CalculatorInstance> instance);
 
+/// History load mode management
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_is_in_history_load_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_set_history_load_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  int enabled,
+);
+
 /// Mode settings
 @ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>)>()
 external void calculator_set_standard_mode(
