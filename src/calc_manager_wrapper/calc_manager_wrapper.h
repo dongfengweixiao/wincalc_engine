@@ -334,12 +334,27 @@ CALC_API void calculator_memory_clear_all(CalculatorInstance* instance);
 // History Functions
 // ============================================================================
 
+// Get history count for current mode
 CALC_API int calculator_history_get_count(CalculatorInstance* instance);
 CALC_API int calculator_history_get_expression_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
 CALC_API int calculator_history_get_result_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
 CALC_API void calculator_history_load_at(CalculatorInstance* instance, int index);
 CALC_API int calculator_history_remove_at(CalculatorInstance* instance, int index);
 CALC_API void calculator_history_clear(CalculatorInstance* instance);
+
+// Per-mode history functions (NEW)
+// Get history count for a specific mode
+CALC_API int calculator_history_get_count_for_mode(CalculatorInstance* instance, CalcMode mode);
+
+// Get history expression/result for a specific mode
+CALC_API int calculator_history_get_expression_at_for_mode(CalculatorInstance* instance, CalcMode mode, int index, char* buffer, int buffer_size);
+CALC_API int calculator_history_get_result_at_for_mode(CalculatorInstance* instance, CalcMode mode, int index, char* buffer, int buffer_size);
+
+// Set history items for current mode (used when switching back to a mode)
+CALC_API void calculator_history_set_from_vector(CalculatorInstance* instance, const char* json_data);
+
+// Clear history for a specific mode
+CALC_API void calculator_history_clear_for_mode(CalculatorInstance* instance, CalcMode mode);
 
 // ============================================================================
 // Parenthesis

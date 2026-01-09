@@ -704,6 +704,152 @@ void calculator_history_clear(CalculatorInstance* instance) {
 }
 
 // ============================================================================
+// Per-Mode History Functions (NEW)
+// ============================================================================
+
+int calculator_history_get_count_for_mode(CalculatorInstance* instance, CalcMode mode) {
+    if (instance && instance->manager) {
+        CalculationManager::CalculatorMode calcMode;
+        switch (mode) {
+            case CALC_MODE_STANDARD:
+                calcMode = CalculationManager::CalculatorMode::Standard;
+                break;
+            case CALC_MODE_SCIENTIFIC:
+                calcMode = CalculationManager::CalculatorMode::Scientific;
+                break;
+            case CALC_MODE_PROGRAMMER:
+                // Programmer mode uses Standard mode history
+                calcMode = CalculationManager::CalculatorMode::Standard;
+                break;
+            default:
+                return 0;
+        }
+        return static_cast<int>(instance->manager->GetHistoryItems(calcMode).size());
+    }
+    return 0;
+}
+
+int calculator_history_get_expression_at_for_mode(CalculatorInstance* instance, CalcMode mode, int index, char* buffer, int buffer_size) {
+    if (!instance || !instance->manager) return -1;
+
+    CalculationManager::CalculatorMode calcMode;
+    switch (mode) {
+        case CALC_MODE_STANDARD:
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        case CALC_MODE_SCIENTIFIC:
+            calcMode = CalculationManager::CalculatorMode::Scientific;
+            break;
+        case CALC_MODE_PROGRAMMER:
+            // Programmer mode uses Standard mode history
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        default:
+            return -1;
+    }
+
+    const auto& history = instance->manager->GetHistoryItems(calcMode);
+    if (index < 0 || index >= static_cast<int>(history.size())) {
+        return -1;
+    }
+
+    std::string utf8 = wstring_to_utf8(history[index]->historyItemVector.expression);
+    return copy_to_buffer(utf8, buffer, buffer_size);
+}
+
+int calculator_history_get_result_at_for_mode(CalculatorInstance* instance, CalcMode mode, int index, char* buffer, int buffer_size) {
+    if (!instance || !instance->manager) return -1;
+
+    CalculationManager::CalculatorMode calcMode;
+    switch (mode) {
+        case CALC_MODE_STANDARD:
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        case CALC_MODE_SCIENTIFIC:
+            calcMode = CalculationManager::CalculatorMode::Scientific;
+            break;
+        case CALC_MODE_PROGRAMMER:
+            // Programmer mode uses Standard mode history
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        default:
+            return -1;
+    }
+
+    const auto& history = instance->manager->GetHistoryItems(calcMode);
+    if (index < 0 || index >= static_cast<int>(history.size())) {
+        return -1;
+    }
+
+    std::string utf8 = wstring_to_utf8(history[index]->historyItemVector.result);
+    return copy_to_buffer(utf8, buffer, buffer_size);
+}
+
+void calculator_history_set_from_vector(CalculatorInstance* instance, const char* json_data) {
+    // This function would restore history from serialized data
+    // For now, we'll implement a simpler approach using the existing SetHistoryItems
+    // Note: A full implementation would require JSON parsing and reconstruction of HISTORYITEM objects
+    // This is a placeholder for future implementation
+    if (!instance || !instance->manager || !json_data) return;
+
+    // TODO: Implement JSON deserialization and history restoration
+    // For now, this function is a no-op as the complex HISTORYITEM structure
+    // with spCommands makes serialization challenging
+}
+
+void calculator_history_clear_for_mode(CalculatorInstance* instance, CalcMode mode) {
+    if (!instance || !instance->manager) return;
+
+    CalculationManager::CalculatorMode calcMode;
+    switch (mode) {
+        case CALC_MODE_STANDARD:
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        case CALC_MODE_SCIENTIFIC:
+            calcMode = CalculationManager::CalculatorMode::Scientific;
+            break;
+        case CALC_MODE_PROGRAMMER:
+            // Programmer mode uses Standard mode history
+            calcMode = CalculationManager::CalculatorMode::Standard;
+            break;
+        default:
+            return;
+    }
+
+    // Clear history by switching to that mode, clearing, then switching back
+    auto currentMode = instance->currentMode;
+
+    // Temporarily switch to the target mode
+    switch (mode) {
+        case CALC_MODE_STANDARD:
+            instance->manager->SetStandardMode();
+            break;
+        case CALC_MODE_SCIENTIFIC:
+            instance->manager->SetScientificMode();
+            break;
+        case CALC_MODE_PROGRAMMER:
+            instance->manager->SetProgrammerMode();
+            break;
+    }
+
+    // Clear the history
+    instance->manager->ClearHistory();
+
+    // Switch back to the original mode
+    switch (currentMode) {
+        case CALC_MODE_STANDARD:
+            instance->manager->SetStandardMode();
+            break;
+        case CALC_MODE_SCIENTIFIC:
+            instance->manager->SetScientificMode();
+            break;
+        case CALC_MODE_PROGRAMMER:
+            instance->manager->SetProgrammerMode();
+            break;
+    }
+}
+
+// ============================================================================
 // Parenthesis
 // ============================================================================
 

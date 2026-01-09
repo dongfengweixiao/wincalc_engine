@@ -5,6 +5,18 @@ import 'package:calc_manager/calc_manager_wrapper.dart';
 /// Calculator mode
 enum CalculatorMode { standard, scientific, programmer }
 
+/// Convert CalculatorMode to CalcMode (for FFI calls)
+CalcMode _toCalcMode(CalculatorMode mode) {
+  switch (mode) {
+    case CalculatorMode.standard:
+      return CalcMode.CALC_MODE_STANDARD;
+    case CalculatorMode.scientific:
+      return CalcMode.CALC_MODE_SCIENTIFIC;
+    case CalculatorMode.programmer:
+      return CalcMode.CALC_MODE_PROGRAMMER;
+  }
+}
+
 /// Calculator service that manages the native calculator instance
 class CalculatorService {
   Pointer<CalculatorInstance>? _calculator;
@@ -241,6 +253,67 @@ class CalculatorService {
   void clearHistory() {
     if (!_isInitialized) return;
     calculator_history_clear(_calculator!);
+  }
+
+  // ============================================================================
+  // Per-Mode History Functions (NEW)
+  // ============================================================================
+
+  /// Get history count for a specific mode
+  int getHistoryCountForMode(CalculatorMode mode) {
+    if (!_isInitialized) return 0;
+    return calculator_history_get_count_for_mode(
+      _calculator!,
+      _toCalcMode(mode),
+    );
+  }
+
+  /// Get history expression at index for a specific mode
+  String? getHistoryExpressionAtForMode(CalculatorMode mode, int index) {
+    if (!_isInitialized) return null;
+    final buffer = calloc<Char>(2048);
+    try {
+      final length = calculator_history_get_expression_at_for_mode(
+        _calculator!,
+        _toCalcMode(mode),
+        index,
+        buffer,
+        2048,
+      );
+      if (length > 0) {
+        return buffer.cast<Utf8>().toDartString(length: length);
+      }
+      return null;
+    } finally {
+      calloc.free(buffer);
+    }
+  }
+
+  /// Get history result at index for a specific mode
+  String? getHistoryResultAtForMode(CalculatorMode mode, int index) {
+    if (!_isInitialized) return null;
+    final buffer = calloc<Char>(1024);
+    try {
+      final length = calculator_history_get_result_at_for_mode(
+        _calculator!,
+        _toCalcMode(mode),
+        index,
+        buffer,
+        1024,
+      );
+      if (length > 0) {
+        return buffer.cast<Utf8>().toDartString(length: length);
+      }
+      return null;
+    } finally {
+      calloc.free(buffer);
+    }
+  }
+
+  /// Clear history for a specific mode
+  void clearHistoryForMode(CalculatorMode mode) {
+    if (!_isInitialized) return;
+    calculator_history_clear_for_mode(_calculator!, _toCalcMode(mode));
   }
 
   // ============================================================================

@@ -268,9 +268,7 @@ external void calculator_memory_clear_all(
   ffi.Pointer<CalculatorInstance> instance,
 );
 
-/// ============================================================================
-/// History Functions
-/// ============================================================================
+/// Get history count for current mode
 @ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
 external int calculator_history_get_count(
   ffi.Pointer<CalculatorInstance> instance,
@@ -322,6 +320,107 @@ external int calculator_history_remove_at(
 external void calculator_history_clear(
   ffi.Pointer<CalculatorInstance> instance,
 );
+
+/// Per-mode history functions (NEW)
+/// Get history count for a specific mode
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)>(
+  symbol: 'calculator_history_get_count_for_mode',
+)
+external int _calculator_history_get_count_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  int mode,
+);
+
+int calculator_history_get_count_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcMode mode,
+) => _calculator_history_get_count_for_mode(instance, mode.value);
+
+/// Get history expression/result for a specific mode
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.UnsignedInt,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>(symbol: 'calculator_history_get_expression_at_for_mode')
+external int _calculator_history_get_expression_at_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  int mode,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+int calculator_history_get_expression_at_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcMode mode,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+) => _calculator_history_get_expression_at_for_mode(
+  instance,
+  mode.value,
+  index,
+  buffer,
+  buffer_size,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.UnsignedInt,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>(symbol: 'calculator_history_get_result_at_for_mode')
+external int _calculator_history_get_result_at_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  int mode,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+);
+
+int calculator_history_get_result_at_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcMode mode,
+  int index,
+  ffi.Pointer<ffi.Char> buffer,
+  int buffer_size,
+) => _calculator_history_get_result_at_for_mode(
+  instance,
+  mode.value,
+  index,
+  buffer,
+  buffer_size,
+);
+
+/// Set history items for current mode (used when switching back to a mode)
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Pointer<ffi.Char>)
+>()
+external void calculator_history_set_from_vector(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Char> json_data,
+);
+
+/// Clear history for a specific mode
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)
+>(symbol: 'calculator_history_clear_for_mode')
+external void _calculator_history_clear_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  int mode,
+);
+
+void calculator_history_clear_for_mode(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcMode mode,
+) => _calculator_history_clear_for_mode(instance, mode.value);
 
 /// ============================================================================
 /// Parenthesis
