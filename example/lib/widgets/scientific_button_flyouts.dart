@@ -64,32 +64,35 @@ class _TrigFlyoutButtonState extends State<TrigFlyoutButton> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    String.fromCharCode(CalculatorIcons.trigButton.codePoint),
-                    style: TextStyle(
-                      fontFamily: CalculatorIcons.trigButton.fontFamily,
-                      fontSize: 14,
-                      color: widget.theme.textPrimary,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      String.fromCharCode(CalculatorIcons.trigButton.codePoint),
+                      style: TextStyle(
+                        fontFamily: CalculatorIcons.trigButton.fontFamily,
+                        fontSize: 14,
+                        color: widget.theme.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '三角学',
-                    style: TextStyle(
-                      color: widget.theme.textPrimary,
-                      fontSize: 12,
+                    const SizedBox(width: 4),
+                    Text(
+                      '三角学',
+                      style: TextStyle(
+                        color: widget.theme.textPrimary,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    color: widget.theme.textPrimary,
-                    size: 16,
-                  ),
-                ],
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: widget.theme.textPrimary,
+                      size: 16,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -575,32 +578,35 @@ class _FuncFlyoutButtonState extends State<FuncFlyoutButton> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    String.fromCharCode(CalculatorIcons.funcButton.codePoint),
-                    style: TextStyle(
-                      fontFamily: CalculatorIcons.funcButton.fontFamily,
-                      fontSize: 14,
-                      color: widget.theme.textPrimary,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      String.fromCharCode(CalculatorIcons.funcButton.codePoint),
+                      style: TextStyle(
+                        fontFamily: CalculatorIcons.funcButton.fontFamily,
+                        fontSize: 14,
+                        color: widget.theme.textPrimary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    '函数',
-                    style: TextStyle(
-                      color: widget.theme.textPrimary,
-                      fontSize: 12,
+                    const SizedBox(width: 4),
+                    Text(
+                      '函数',
+                      style: TextStyle(
+                        color: widget.theme.textPrimary,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    color: widget.theme.textPrimary,
-                    size: 16,
-                  ),
-                ],
+                    const SizedBox(width: 2),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      color: widget.theme.textPrimary,
+                      size: 16,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
