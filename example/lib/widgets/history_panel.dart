@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import '../providers/calculator_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/calculator_theme.dart';
@@ -10,9 +9,20 @@ import '../theme/calculator_icons.dart';
 enum HistoryPanelTab { history, memory }
 
 /// History panel state provider
-final historyPanelTabProvider = StateProvider<HistoryPanelTab>(
-  (ref) => HistoryPanelTab.history,
-);
+final historyPanelTabProvider =
+    NotifierProvider<HistoryPanelNotifier, HistoryPanelTab>(() {
+      return HistoryPanelNotifier();
+    });
+
+/// Notifier for history panel tab state
+class HistoryPanelNotifier extends Notifier<HistoryPanelTab> {
+  @override
+  HistoryPanelTab build() => HistoryPanelTab.history;
+
+  void setTab(HistoryPanelTab tab) {
+    state = tab;
+  }
+}
 
 /// History and memory panel widget
 class HistoryMemoryPanel extends ConsumerWidget {
@@ -57,8 +67,9 @@ class HistoryMemoryPanel extends ConsumerWidget {
             label: '历史记录',
             isSelected: currentTab == HistoryPanelTab.history,
             theme: theme,
-            onPressed: () => ref.read(historyPanelTabProvider.notifier).state =
-                HistoryPanelTab.history,
+            onPressed: () => ref
+                .read(historyPanelTabProvider.notifier)
+                .setTab(HistoryPanelTab.history),
           ),
           const SizedBox(width: 8),
           _TabButton(
@@ -66,8 +77,9 @@ class HistoryMemoryPanel extends ConsumerWidget {
             label: '内存',
             isSelected: currentTab == HistoryPanelTab.memory,
             theme: theme,
-            onPressed: () => ref.read(historyPanelTabProvider.notifier).state =
-                HistoryPanelTab.memory,
+            onPressed: () => ref
+                .read(historyPanelTabProvider.notifier)
+                .setTab(HistoryPanelTab.memory),
           ),
           const Spacer(),
           // Delete button
