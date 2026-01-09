@@ -4,6 +4,17 @@
 
 #pragma once
 
+// Windows DLL export macro
+#ifdef _WIN32
+#ifdef CALC_MANAGER_EXPORTS
+#define CALC_API __declspec(dllexport)
+#else
+#define CALC_API __declspec(dllimport)
+#endif
+#else
+#define CALC_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -249,126 +260,126 @@ typedef enum {
 // ============================================================================
 
 // Lifecycle
-CalculatorInstance* calculator_create(void);
-void calculator_destroy(CalculatorInstance* instance);
+CALC_API CalculatorInstance* calculator_create(void);
+CALC_API void calculator_destroy(CalculatorInstance* instance);
 
 // Mode settings
-void calculator_set_standard_mode(CalculatorInstance* instance);
-void calculator_set_scientific_mode(CalculatorInstance* instance);
-void calculator_set_programmer_mode(CalculatorInstance* instance);
-int calculator_get_current_mode(CalculatorInstance* instance);
+CALC_API void calculator_set_standard_mode(CalculatorInstance* instance);
+CALC_API void calculator_set_scientific_mode(CalculatorInstance* instance);
+CALC_API void calculator_set_programmer_mode(CalculatorInstance* instance);
+CALC_API int calculator_get_current_mode(CalculatorInstance* instance);
 
 // Commands
-void calculator_send_command(CalculatorInstance* instance, CalculatorCommand command);
+CALC_API void calculator_send_command(CalculatorInstance* instance, CalculatorCommand command);
 
 // Results
-int calculator_get_primary_display(CalculatorInstance* instance, char* buffer, int buffer_size);
-int calculator_get_expression(CalculatorInstance* instance, char* buffer, int buffer_size);
-int calculator_has_error(CalculatorInstance* instance);
+CALC_API int calculator_get_primary_display(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_expression(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_has_error(CalculatorInstance* instance);
 
 // State
-void calculator_reset(CalculatorInstance* instance, int clear_memory);
-int calculator_is_input_empty(CalculatorInstance* instance);
+CALC_API void calculator_reset(CalculatorInstance* instance, int clear_memory);
+CALC_API int calculator_is_input_empty(CalculatorInstance* instance);
 
 // ============================================================================
 // Programmer Mode Functions
 // ============================================================================
 
 // Radix (number base)
-void calculator_set_radix(CalculatorInstance* instance, CalcRadixType radix);
-int calculator_get_radix(CalculatorInstance* instance);
+CALC_API void calculator_set_radix(CalculatorInstance* instance, CalcRadixType radix);
+CALC_API int calculator_get_radix(CalculatorInstance* instance);
 
 // Get result in specific radix
-int calculator_get_result_hex(CalculatorInstance* instance, char* buffer, int buffer_size);
-int calculator_get_result_dec(CalculatorInstance* instance, char* buffer, int buffer_size);
-int calculator_get_result_oct(CalculatorInstance* instance, char* buffer, int buffer_size);
-int calculator_get_result_bin(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_result_hex(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_result_dec(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_result_oct(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_result_bin(CalculatorInstance* instance, char* buffer, int buffer_size);
 
 // Binary representation for bit panel (64 chars: '0' or '1')
-int calculator_get_binary_display(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API int calculator_get_binary_display(CalculatorInstance* instance, char* buffer, int buffer_size);
 
 // ============================================================================
 // Scientific Mode Functions
 // ============================================================================
 
 // Angle mode
-void calculator_set_angle_type(CalculatorInstance* instance, CalcAngleType angle_type);
-int calculator_get_angle_type(CalculatorInstance* instance);
+CALC_API void calculator_set_angle_type(CalculatorInstance* instance, CalcAngleType angle_type);
+CALC_API int calculator_get_angle_type(CalculatorInstance* instance);
 
 // ============================================================================
 // Memory Functions
 // ============================================================================
 
 // Memory operations
-void calculator_memory_store(CalculatorInstance* instance);
-void calculator_memory_recall(CalculatorInstance* instance);
-void calculator_memory_add(CalculatorInstance* instance);
-void calculator_memory_subtract(CalculatorInstance* instance);
-void calculator_memory_clear(CalculatorInstance* instance);
+CALC_API void calculator_memory_store(CalculatorInstance* instance);
+CALC_API void calculator_memory_recall(CalculatorInstance* instance);
+CALC_API void calculator_memory_add(CalculatorInstance* instance);
+CALC_API void calculator_memory_subtract(CalculatorInstance* instance);
+CALC_API void calculator_memory_clear(CalculatorInstance* instance);
 
 // Extended memory (multiple slots)
-int calculator_memory_get_count(CalculatorInstance* instance);
-int calculator_memory_get_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
-void calculator_memory_load_at(CalculatorInstance* instance, int index);
-void calculator_memory_add_at(CalculatorInstance* instance, int index);
-void calculator_memory_subtract_at(CalculatorInstance* instance, int index);
-void calculator_memory_clear_at(CalculatorInstance* instance, int index);
-void calculator_memory_clear_all(CalculatorInstance* instance);
+CALC_API int calculator_memory_get_count(CalculatorInstance* instance);
+CALC_API int calculator_memory_get_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API void calculator_memory_load_at(CalculatorInstance* instance, int index);
+CALC_API void calculator_memory_add_at(CalculatorInstance* instance, int index);
+CALC_API void calculator_memory_subtract_at(CalculatorInstance* instance, int index);
+CALC_API void calculator_memory_clear_at(CalculatorInstance* instance, int index);
+CALC_API void calculator_memory_clear_all(CalculatorInstance* instance);
 
 // ============================================================================
 // History Functions
 // ============================================================================
 
-int calculator_history_get_count(CalculatorInstance* instance);
-int calculator_history_get_expression_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
-int calculator_history_get_result_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
-void calculator_history_load_at(CalculatorInstance* instance, int index);
-int calculator_history_remove_at(CalculatorInstance* instance, int index);
-void calculator_history_clear(CalculatorInstance* instance);
+CALC_API int calculator_history_get_count(CalculatorInstance* instance);
+CALC_API int calculator_history_get_expression_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API int calculator_history_get_result_at(CalculatorInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API void calculator_history_load_at(CalculatorInstance* instance, int index);
+CALC_API int calculator_history_remove_at(CalculatorInstance* instance, int index);
+CALC_API void calculator_history_clear(CalculatorInstance* instance);
 
 // ============================================================================
 // Parenthesis
 // ============================================================================
 
-int calculator_get_parenthesis_count(CalculatorInstance* instance);
+CALC_API int calculator_get_parenthesis_count(CalculatorInstance* instance);
 
 // ============================================================================
 // Unit Converter Instance Functions
 // ============================================================================
 
 // Lifecycle
-UnitConverterInstance* unit_converter_create(void);
-void unit_converter_destroy(UnitConverterInstance* instance);
+CALC_API UnitConverterInstance* unit_converter_create(void);
+CALC_API void unit_converter_destroy(UnitConverterInstance* instance);
 
 // Category management
-int unit_converter_get_category_count(UnitConverterInstance* instance);
-int unit_converter_get_category_name(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
-int unit_converter_get_category_id(UnitConverterInstance* instance, int index);
-void unit_converter_set_category(UnitConverterInstance* instance, int category_id);
-int unit_converter_get_current_category(UnitConverterInstance* instance);
+CALC_API int unit_converter_get_category_count(UnitConverterInstance* instance);
+CALC_API int unit_converter_get_category_name(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API int unit_converter_get_category_id(UnitConverterInstance* instance, int index);
+CALC_API void unit_converter_set_category(UnitConverterInstance* instance, int category_id);
+CALC_API int unit_converter_get_current_category(UnitConverterInstance* instance);
 
 // Unit management
-int unit_converter_get_unit_count(UnitConverterInstance* instance);
-int unit_converter_get_unit_name(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
-int unit_converter_get_unit_abbreviation(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
-int unit_converter_get_unit_id(UnitConverterInstance* instance, int index);
+CALC_API int unit_converter_get_unit_count(UnitConverterInstance* instance);
+CALC_API int unit_converter_get_unit_name(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API int unit_converter_get_unit_abbreviation(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
+CALC_API int unit_converter_get_unit_id(UnitConverterInstance* instance, int index);
 
 // Current unit selection
-void unit_converter_set_from_unit(UnitConverterInstance* instance, int unit_id);
-void unit_converter_set_to_unit(UnitConverterInstance* instance, int unit_id);
-int unit_converter_get_from_unit(UnitConverterInstance* instance);
-int unit_converter_get_to_unit(UnitConverterInstance* instance);
+CALC_API void unit_converter_set_from_unit(UnitConverterInstance* instance, int unit_id);
+CALC_API void unit_converter_set_to_unit(UnitConverterInstance* instance, int unit_id);
+CALC_API int unit_converter_get_from_unit(UnitConverterInstance* instance);
+CALC_API int unit_converter_get_to_unit(UnitConverterInstance* instance);
 
 // Swap units
-void unit_converter_swap_units(UnitConverterInstance* instance);
+CALC_API void unit_converter_swap_units(UnitConverterInstance* instance);
 
 // Input/Output
-void unit_converter_send_command(UnitConverterInstance* instance, CalculatorCommand command);
-int unit_converter_get_from_value(UnitConverterInstance* instance, char* buffer, int buffer_size);
-int unit_converter_get_to_value(UnitConverterInstance* instance, char* buffer, int buffer_size);
+CALC_API void unit_converter_send_command(UnitConverterInstance* instance, CalculatorCommand command);
+CALC_API int unit_converter_get_from_value(UnitConverterInstance* instance, char* buffer, int buffer_size);
+CALC_API int unit_converter_get_to_value(UnitConverterInstance* instance, char* buffer, int buffer_size);
 
 // Reset
-void unit_converter_reset(UnitConverterInstance* instance);
+CALC_API void unit_converter_reset(UnitConverterInstance* instance);
 
 // ============================================================================
 // Unit Converter Commands (same as number input)
@@ -394,10 +405,10 @@ void unit_converter_reset(UnitConverterInstance* instance);
 // Backward Compatibility (old function names)
 // ============================================================================
 
-CalculatorInstance* calculator_init(void);
-void calculator_free(CalculatorInstance* instance);
-int calculator_get_result_length(CalculatorInstance* instance);
-int calculator_get_result(CalculatorInstance* instance, char* buffer, int buffer_size);
+CALC_API CalculatorInstance* calculator_init(void);
+CALC_API void calculator_free(CalculatorInstance* instance);
+CALC_API int calculator_get_result_length(CalculatorInstance* instance);
+CALC_API int calculator_get_result(CalculatorInstance* instance, char* buffer, int buffer_size);
 
 #ifdef __cplusplus
 }

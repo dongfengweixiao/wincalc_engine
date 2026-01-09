@@ -22,3 +22,7 @@
 #include <cmath>
 #include <random>
 #include <iomanip>
+
+// Include Windows fixes first to ensure all necessary macros are defined
+// This fixes compilation issues with third-party code on Windows
+#include "windows_fixes.h"
