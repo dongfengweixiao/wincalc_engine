@@ -153,7 +153,7 @@ class CalculatorIcons {
 
   /// Programmer calculator
   static const IconData programmerCalculator = IconData(
-    0xECC5,
+    0xECCE,
     fontFamily: _fontFamily,
   );
 

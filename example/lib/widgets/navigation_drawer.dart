@@ -11,154 +11,79 @@ class CalculatorNavigationDrawer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(calculatorThemeProvider);
-    final navState = ref.watch(navigationProvider);
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      width: navState.isDrawerOpen ? 280 : 48,
-      color: theme.navPaneBackground,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hamburger button and title
-          _buildHeader(ref, theme, navState.isDrawerOpen),
-
-          // Navigation categories
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  for (final group in navCategories)
-                    _buildCategoryGroup(ref, theme, group, navState),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(WidgetRef ref, CalculatorTheme theme, bool isOpen) {
-    return SizedBox(
-      height: 48,
-      child: Row(
-        children: [
-          // Hamburger button
-          _NavigationButton(
-            icon: Icons.menu,
-            onPressed: () =>
-                ref.read(navigationProvider.notifier).toggleDrawer(),
-            theme: theme,
-          ),
-          // Title (only when open)
-          if (isOpen)
+    return Drawer(
+      backgroundColor: theme.navPaneBackground,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Navigation categories
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Text(
-                  ref.watch(navigationProvider).currentModeName,
-                  style: TextStyle(
-                    color: theme.textPrimary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                  ),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final group in navCategories)
+                      _buildCategoryGroup(context, ref, theme, group),
+                  ],
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildCategoryGroup(
+    BuildContext context,
     WidgetRef ref,
     CalculatorTheme theme,
     NavCategoryGroup group,
-    NavigationState navState,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Group header (only when drawer is open)
-        if (navState.isDrawerOpen)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              group.name,
-              style: TextStyle(
-                color: theme.textSecondary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+        // Group header
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+          child: Text(
+            group.name,
+            style: TextStyle(
+              color: theme.textSecondary,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
             ),
           ),
+        ),
         // Category items
         for (final category in group.categories)
-          _buildCategoryItem(ref, theme, category, navState),
+          _buildCategoryItem(context, ref, theme, category),
       ],
     );
   }
 
   Widget _buildCategoryItem(
+    BuildContext context,
     WidgetRef ref,
     CalculatorTheme theme,
     NavCategory category,
-    NavigationState navState,
   ) {
+    final navState = ref.watch(navigationProvider);
     final isSelected = category.viewMode == navState.currentMode;
 
     return _NavigationItem(
       icon: category.icon,
       label: category.name,
       isSelected: isSelected,
-      isExpanded: navState.isDrawerOpen,
       theme: theme,
       onPressed: category.viewMode != null
-          ? () => ref
-                .read(navigationProvider.notifier)
-                .setMode(category.viewMode!)
+          ? () {
+              ref.read(navigationProvider.notifier).setMode(category.viewMode!);
+              Navigator.of(context).pop();
+            }
           : null,
-    );
-  }
-}
-
-/// Navigation button (hamburger menu)
-class _NavigationButton extends StatefulWidget {
-  final IconData icon;
-  final VoidCallback? onPressed;
-  final CalculatorTheme theme;
-
-  const _NavigationButton({
-    required this.icon,
-    required this.onPressed,
-    required this.theme,
-  });
-
-  @override
-  State<_NavigationButton> createState() => _NavigationButtonState();
-}
-
-class _NavigationButtonState extends State<_NavigationButton> {
-  bool _isHovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        child: Container(
-          width: 48,
-          height: 48,
-          color: _isHovered
-              ? widget.theme.textPrimary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          child: Icon(widget.icon, color: widget.theme.textPrimary, size: 20),
-        ),
-      ),
     );
   }
 }
@@ -168,7 +93,6 @@ class _NavigationItem extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool isSelected;
-  final bool isExpanded;
   final CalculatorTheme theme;
   final VoidCallback? onPressed;
 
@@ -176,7 +100,6 @@ class _NavigationItem extends StatefulWidget {
     required this.icon,
     required this.label,
     required this.isSelected,
-    required this.isExpanded,
     required this.theme,
     this.onPressed,
   });
@@ -199,57 +122,53 @@ class _NavigationItemState extends State<_NavigationItem> {
       backgroundColor = Colors.transparent;
     }
 
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: widget.onPressed,
-        child: Container(
-          height: 40,
-          margin: EdgeInsets.symmetric(
-            horizontal: widget.isExpanded ? 4 : 2,
-            vertical: 2,
-          ),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(4),
-            border: widget.isSelected
-                ? Border(
-                    left: BorderSide(color: widget.theme.accentColor, width: 3),
-                  )
-                : null,
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: Row(
-            children: [
-              // Icon
-              SizedBox(
-                width: widget.isExpanded ? 40 : 36,
-                child: Center(
-                  child: Icon(
-                    widget.icon,
-                    color: widget.isSelected
-                        ? widget.theme.accentColor
-                        : widget.theme.textPrimary,
-                    size: 18,
-                  ),
+    return InkWell(
+      onHover: (value) {
+        setState(() {
+          _isHovered = value;
+        });
+      },
+      onTap: widget.onPressed,
+      child: Container(
+        height: 48,
+        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(4),
+          border: widget.isSelected
+              ? Border(
+                  left: BorderSide(color: widget.theme.accentColor, width: 3),
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            // Icon
+            SizedBox(
+              width: 48,
+              child: Center(
+                child: Icon(
+                  widget.icon,
+                  color: widget.isSelected
+                      ? widget.theme.accentColor
+                      : widget.theme.textPrimary,
+                  size: 20,
                 ),
               ),
-              // Label (only when expanded)
-              if (widget.isExpanded)
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    style: TextStyle(
-                      color: widget.isSelected
-                          ? widget.theme.accentColor
-                          : widget.theme.textPrimary,
-                      fontSize: 14,
-                    ),
-                  ),
+            ),
+            // Label
+            Expanded(
+              child: Text(
+                widget.label,
+                style: TextStyle(
+                  color: widget.isSelected
+                      ? widget.theme.accentColor
+                      : widget.theme.textPrimary,
+                  fontSize: 15,
                 ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );

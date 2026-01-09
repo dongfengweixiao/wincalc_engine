@@ -12,11 +12,18 @@ import '../widgets/history_panel.dart';
 import '../widgets/bottom_history_sheet.dart';
 
 /// Main calculator view with responsive layout
-class CalculatorView extends ConsumerWidget {
+class CalculatorView extends ConsumerStatefulWidget {
   const CalculatorView({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalculatorView> createState() => _CalculatorViewState();
+}
+
+class _CalculatorViewState extends ConsumerState<CalculatorView> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
     final theme = ref.watch(calculatorThemeProvider);
     final currentMode = ref.watch(currentModeProvider);
 
@@ -29,7 +36,9 @@ class CalculatorView extends ConsumerWidget {
     });
 
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: theme.background,
+      drawer: const CalculatorNavigationDrawer(),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -44,9 +53,6 @@ class CalculatorView extends ConsumerWidget {
 
             return Row(
               children: [
-                // Navigation sidebar
-                const CalculatorNavigationDrawer(),
-
                 // Main calculator area
                 Expanded(
                   child: _buildCalculatorBody(context, ref, theme, currentMode),
@@ -90,7 +96,7 @@ class CalculatorView extends ConsumerWidget {
   ) {
     return Column(
       children: [
-        // Header with history button and theme toggle
+        // Header with hamburger button, mode name, and theme toggle
         _buildHeader(context, ref, calculatorTheme),
 
         // Display area
@@ -124,10 +130,12 @@ class CalculatorView extends ConsumerWidget {
     final showHistoryPanel = ref.watch(showHistoryPanelProvider);
 
     return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      height: 48,
       child: Row(
         children: [
+          // Hamburger button and mode name
+          _buildHamburgerButton(ref, calculatorTheme),
+
           const Spacer(),
 
           // History button (only when panel is hidden)
@@ -151,6 +159,52 @@ class CalculatorView extends ConsumerWidget {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHamburgerButton(WidgetRef ref, calculatorTheme) {
+    final navState = ref.watch(navigationProvider);
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _scaffoldKey.currentState?.openDrawer();
+        },
+        child: Container(
+          height: 48,
+          padding: const EdgeInsets.only(left: 8, right: 16),
+          color: calculatorTheme.background,
+          child: Row(
+            children: [
+              // Hamburger button
+              Container(
+                width: 40,
+                height: 40,
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.menu,
+                  color: calculatorTheme.textPrimary,
+                  size: 20,
+                ),
+              ),
+
+              // Mode name
+              Padding(
+                padding: const EdgeInsets.only(left: 12),
+                child: Text(
+                  navState.currentModeName,
+                  style: TextStyle(
+                    color: calculatorTheme.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
