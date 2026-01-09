@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/calculator_provider.dart';
+import '../../providers/scientific_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../theme/calculator_theme.dart';
 import '../../theme/calculator_icons.dart';
-import 'scientific_providers.dart';
 import 'scientific_button_components/scientific_buttons.dart';
 import 'scientific_button_flyouts/flyouts.dart';
 
@@ -152,19 +152,19 @@ class ScientificButtonPanelLayout extends ConsumerWidget {
     CalculatorNotifier calculator,
     CalculatorTheme theme,
   ) {
-    final scientificMode = ref.watch(scientificModeProvider);
+    final scientificState = ref.watch(scientificProvider);
 
     return Row(
       children: [
         // DEG button (cycles through DEG/RAD/GRAD)
         Expanded(
           child: ScientificAngleButton(
-            label: scientificMode.angleType.label,
+            label: scientificState.angleType.label,
             theme: theme,
             onPressed: () {
-              final notifier = ref.read(scientificModeProvider.notifier);
+              final notifier = ref.read(scientificProvider.notifier);
               notifier.toggleAngleType();
-              calculator.setAngleType(scientificMode.angleType.value);
+              calculator.setAngleType(scientificState.angleType.value);
             },
           ),
         ),
@@ -173,10 +173,10 @@ class ScientificButtonPanelLayout extends ConsumerWidget {
         Expanded(
           child: ScientificToggleButton(
             label: 'F-E',
-            isSelected: scientificMode.isFEChecked,
+            isSelected: scientificState.isFEChecked,
             theme: theme,
             onPressed: () {
-              final notifier = ref.read(scientificModeProvider.notifier);
+              final notifier = ref.read(scientificProvider.notifier);
               notifier.toggleFE();
               calculator.toggleFE();
             },
