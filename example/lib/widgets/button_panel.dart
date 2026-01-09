@@ -80,24 +80,24 @@ class StandardButtonPanel extends ConsumerWidget {
         children: [
           CalculatorButton(
             icon: CalculatorIcons.percent,
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             onPressed: calculator.percent,
           ),
           CalculatorButton(
             text: 'CE',
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             fontSize: CalculatorFontSizes.numeric16,
             onPressed: calculator.clearEntry,
           ),
           CalculatorButton(
             text: 'C',
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             fontSize: CalculatorFontSizes.numeric16,
             onPressed: calculator.clear,
           ),
           CalculatorButton(
             icon: CalculatorIcons.backspace,
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             onPressed: calculator.backspace,
           ),
         ],
@@ -111,17 +111,17 @@ class StandardButtonPanel extends ConsumerWidget {
         children: [
           CalculatorButton(
             icon: CalculatorIcons.reciprocal,
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             onPressed: calculator.reciprocal,
           ),
           CalculatorButton(
             icon: CalculatorIcons.square,
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             onPressed: calculator.square,
           ),
           CalculatorButton(
             icon: CalculatorIcons.squareRoot,
-            type: CalcButtonType.function,
+            type: CalcButtonType.operator,
             onPressed: calculator.squareRoot,
           ),
           CalculatorButton(
