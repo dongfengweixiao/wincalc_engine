@@ -9,6 +9,7 @@ import '../widgets/button_panel.dart';
 import '../widgets/scientific_button_panel.dart';
 import '../widgets/navigation_drawer.dart';
 import '../widgets/history_panel.dart';
+import '../widgets/bottom_history_sheet.dart';
 
 /// Main calculator view with responsive layout
 class CalculatorView extends ConsumerWidget {
@@ -47,7 +48,9 @@ class CalculatorView extends ConsumerWidget {
                 const CalculatorNavigationDrawer(),
 
                 // Main calculator area
-                Expanded(child: _buildCalculatorBody(ref, theme, currentMode)),
+                Expanded(
+                  child: _buildCalculatorBody(context, ref, theme, currentMode),
+                ),
 
                 // History panel (when width >= 640)
                 if (showHistoryPanel) const HistoryMemoryPanel(),
@@ -70,7 +73,17 @@ class CalculatorView extends ConsumerWidget {
     }
   }
 
+  void _showBottomHistorySheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const BottomHistorySheet(),
+    );
+  }
+
   Widget _buildCalculatorBody(
+    BuildContext context,
     WidgetRef ref,
     calculatorTheme,
     ViewMode currentMode,
@@ -78,7 +91,7 @@ class CalculatorView extends ConsumerWidget {
     return Column(
       children: [
         // Header with history button and theme toggle
-        _buildHeader(ref, calculatorTheme),
+        _buildHeader(context, ref, calculatorTheme),
 
         // Display area
         const Expanded(flex: 2, child: DisplayPanel()),
@@ -107,7 +120,7 @@ class CalculatorView extends ConsumerWidget {
     }
   }
 
-  Widget _buildHeader(WidgetRef ref, calculatorTheme) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, calculatorTheme) {
     final showHistoryPanel = ref.watch(showHistoryPanelProvider);
 
     return Container(
@@ -123,7 +136,7 @@ class CalculatorView extends ConsumerWidget {
               icon: Icons.history,
               theme: calculatorTheme,
               onPressed: () {
-                // Could show a dialog/bottom sheet for history
+                _showBottomHistorySheet(context);
               },
             ),
 
