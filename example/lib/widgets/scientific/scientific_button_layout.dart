@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/calculator_provider.dart';
-import '../providers/scientific_mode_provider.dart';
-import '../providers/theme_provider.dart';
-import '../theme/calculator_theme.dart';
-import '../theme/calculator_icons.dart';
-import 'scientific_button_providers.dart';
-import 'scientific_button_components.dart';
-import 'scientific_button_flyouts.dart';
+import '../../providers/calculator_provider.dart';
+import '../../providers/theme_provider.dart';
+import '../../theme/calculator_theme.dart';
+import '../../theme/calculator_icons.dart';
+import 'scientific_providers.dart';
+import 'scientific_button_components/scientific_buttons.dart';
+import 'scientific_button_flyouts/flyouts.dart';
 
 /// Scientific calculator button panel - Microsoft Calculator layout
 /// Grid: 5 columns × 10 rows

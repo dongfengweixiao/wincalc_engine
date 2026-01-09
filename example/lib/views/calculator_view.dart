@@ -6,7 +6,7 @@ import '../providers/calculator_provider.dart';
 import '../services/calculator_service.dart';
 import '../widgets/display_panel.dart';
 import '../widgets/button_panel.dart';
-import '../widgets/scientific_button_panel.dart';
+import '../widgets/scientific/scientific_button_panel.dart';
 import '../widgets/navigation_drawer.dart';
 import '../widgets/history_panel.dart';
 import '../widgets/bottom_history_sheet.dart';

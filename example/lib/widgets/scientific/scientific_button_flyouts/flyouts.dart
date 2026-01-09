@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/calculator_provider.dart';
-import '../theme/calculator_theme.dart';
-import '../theme/calculator_icons.dart';
-import 'scientific_button_providers.dart';
+import '../../../providers/calculator_provider.dart';
+import '../../../theme/calculator_theme.dart';
+import '../../../theme/calculator_icons.dart';
+import '../scientific_providers.dart';
 
 /// Trig functions flyout button
 class TrigFlyoutButton extends StatefulWidget {
