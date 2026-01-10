@@ -1,7 +1,7 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
 import 'package:test/test.dart';
-import 'package:calc_manager/calc_manager_wrapper.dart';
+import 'package:calc_manager/calc_manager.dart';
 
 /// Helper function to get string result from native buffer
 String getDisplayResult(Pointer<CalculatorInstance> instance) {
