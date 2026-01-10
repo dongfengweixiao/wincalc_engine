@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   ffi: ^2.1.4
-  calc_manager:
+  wincalc_engine:
     path: ..
 
   # State management

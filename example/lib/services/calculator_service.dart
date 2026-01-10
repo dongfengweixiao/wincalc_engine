@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'package:ffi/ffi.dart';
-import 'package:calc_manager/calc_manager.dart';
+import 'package:wincalc_engine/wincalc_engine.dart';
 
 /// Calculator mode
 enum CalculatorMode { standard, scientific, programmer }

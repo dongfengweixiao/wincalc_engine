@@ -8,7 +8,7 @@ void main(List<String> args) async {
     // Combine calc_manager and wrapper into a single library to avoid linking issues
     final builder = CBuilder.library(
       name: 'calc_manager_wrapper',
-      assetName: 'calc_manager.dart',
+      assetName: 'wincalc_engine.dart',
       language: Language.cpp,
       std: 'c++17',
       forcedIncludes: ['src/include/pch.h'],

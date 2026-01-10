@@ -1,6 +1,6 @@
 import 'dart:ffi';
 import 'package:test/test.dart';
-import 'package:calc_manager/calc_manager.dart';
+import 'package:wincalc_engine/wincalc_engine.dart';
 
 void main() {
   group('Calculator Lifecycle', () {

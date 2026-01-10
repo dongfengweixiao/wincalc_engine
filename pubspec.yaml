@@ -1,7 +1,9 @@
-name: calc_manager
-description: Provides lightweight yet convenient bindings to calculate by using dart:ffi.
-version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+name: wincalc_engine
+description: Dart FFI bindings to the Windows Calculator engine, providing standard, scientific, and programmer calculator functionality.
+version: 0.0.1
+homepage: https://github.com/dongfengweixiao/wincalc_engine
+repository: https://github.com/dongfengweixiao/wincalc_engine
+issue_tracker: https://github.com/dongfengweixiao/wincalc_engine/issues
 
 environment:
   sdk: ^3.10.1

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:calc_manager/calc_manager.dart';
+import 'package:wincalc_engine/wincalc_engine.dart';
 import '../services/calculator_service.dart';
 
 /// History item record

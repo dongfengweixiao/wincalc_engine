@@ -1,7 +1,7 @@
-name: calc_manager
-description: CalculatorManager FFI bindings
+name: wincalc_engine
+description: Windows Calculator Engine FFI bindings
 
-output: 'lib/calc_manager.dart'
+output: 'lib/wincalc_engine.dart'
 headers:
   entry-points:
     - 'src/calc_manager_wrapper/calc_manager_wrapper.h'
