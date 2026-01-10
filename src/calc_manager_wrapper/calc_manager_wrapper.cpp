@@ -287,6 +287,8 @@ struct CalculatorInstance {
     CalcMode currentMode = CALC_MODE_STANDARD;
     CalcRadixType currentRadix = CALC_RADIX_DECIMAL;
     CalcAngleType currentAngleType = CALC_ANGLE_DEGREES;
+    CalcWordType currentWordType = CALC_WORD_QWORD;
+    uint64_t carryFlag = 0;
     bool isInHistoryLoadMode = false;  // Track history item load mode
 };
 
@@ -344,6 +346,24 @@ void calculator_send_command(CalculatorInstance* instance, CalculatorCommand com
     // Don't try to recreate the deleted history entry as it may cause display issues
     if (instance->isInHistoryLoadMode) {
         instance->isInHistoryLoadMode = false;
+    }
+
+    // Track word width changes via commands
+    switch (command) {
+        case CMD_QWORD:
+            instance->currentWordType = CALC_WORD_QWORD;
+            break;
+        case CMD_DWORD:
+            instance->currentWordType = CALC_WORD_DWORD;
+            break;
+        case CMD_WORD:
+            instance->currentWordType = CALC_WORD_WORD;
+            break;
+        case CMD_BYTE:
+            instance->currentWordType = CALC_WORD_BYTE;
+            break;
+        default:
+            break;
     }
 
     instance->manager->SendCommand(static_cast<CalculationManager::Command>(command));
@@ -461,6 +481,50 @@ int calculator_get_binary_display(CalculatorInstance* instance, char* buffer, in
     }
 
     return copy_to_buffer(result, buffer, buffer_size);
+}
+
+// ============================================================================
+// Word Size Functions (for Programmer Mode)
+// ============================================================================
+
+void calculator_set_word_width(CalculatorInstance* instance, CalcWordType word_type) {
+    if (!instance || !instance->manager) return;
+
+    CalculationManager::Command cmd;
+    switch (word_type) {
+        case CALC_WORD_QWORD: cmd = CalculationManager::Command::CommandQword; break;
+        case CALC_WORD_DWORD: cmd = CalculationManager::Command::CommandDword; break;
+        case CALC_WORD_WORD:  cmd = CalculationManager::Command::CommandWord; break;
+        case CALC_WORD_BYTE:  cmd = CalculationManager::Command::CommandByte; break;
+        default:              cmd = CalculationManager::Command::CommandQword; break;
+    }
+
+    instance->manager->SendCommand(cmd);
+    instance->currentWordType = word_type;
+}
+
+int calculator_get_word_width(CalculatorInstance* instance) {
+    if (instance) {
+        return static_cast<int>(instance->currentWordType);
+    }
+    return CALC_WORD_QWORD;
+}
+
+// ============================================================================
+// Carry Flag Functions (for Rotate Through Carry)
+// ============================================================================
+
+void calculator_set_carry_flag(CalculatorInstance* instance, int carry) {
+    if (instance) {
+        instance->carryFlag = carry ? 1 : 0;
+    }
+}
+
+int calculator_get_carry_flag(CalculatorInstance* instance) {
+    if (instance) {
+        return static_cast<int>(instance->carryFlag);
+    }
+    return 0;
 }
 
 // ============================================================================

@@ -245,6 +245,14 @@ typedef enum {
     CALC_ANGLE_GRADIANS = 2
 } CalcAngleType;
 
+// Word size types (for programmer mode)
+typedef enum {
+    CALC_WORD_QWORD = 0,  // 64-bit
+    CALC_WORD_DWORD = 1,  // 32-bit
+    CALC_WORD_WORD = 2,   // 16-bit
+    CALC_WORD_BYTE = 3    // 8-bit
+} CalcWordType;
+
 // Memory commands
 typedef enum {
     MEM_CMD_STORE = 330,
@@ -301,6 +309,14 @@ CALC_API int calculator_get_result_bin(CalculatorInstance* instance, char* buffe
 
 // Binary representation for bit panel (64 chars: '0' or '1')
 CALC_API int calculator_get_binary_display(CalculatorInstance* instance, char* buffer, int buffer_size);
+
+// Word size (for programmer mode)
+CALC_API void calculator_set_word_width(CalculatorInstance* instance, CalcWordType word_type);
+CALC_API int calculator_get_word_width(CalculatorInstance* instance);
+
+// Carry flag (for rotate through carry operations)
+CALC_API void calculator_set_carry_flag(CalculatorInstance* instance, int carry);
+CALC_API int calculator_get_carry_flag(CalculatorInstance* instance);
 
 // ============================================================================
 // Scientific Mode Functions

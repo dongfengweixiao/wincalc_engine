@@ -179,6 +179,37 @@ external int calculator_get_binary_display(
   int buffer_size,
 );
 
+/// Word size (for programmer mode)
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)
+>(symbol: 'calculator_set_word_width')
+external void _calculator_set_word_width(
+  ffi.Pointer<CalculatorInstance> instance,
+  int word_type,
+);
+
+void calculator_set_word_width(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcWordType word_type,
+) => _calculator_set_word_width(instance, word_type.value);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_word_width(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
+/// Carry flag (for rotate through carry operations)
+@ffi.Native<ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Int)>()
+external void calculator_set_carry_flag(
+  ffi.Pointer<CalculatorInstance> instance,
+  int carry,
+);
+
+@ffi.Native<ffi.Int Function(ffi.Pointer<CalculatorInstance>)>()
+external int calculator_get_carry_flag(
+  ffi.Pointer<CalculatorInstance> instance,
+);
+
 /// Angle mode
 @ffi.Native<
   ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.UnsignedInt)
@@ -674,6 +705,32 @@ enum CalcAngleType {
     1 => CALC_ANGLE_RADIANS,
     2 => CALC_ANGLE_GRADIANS,
     _ => throw ArgumentError('Unknown value for CalcAngleType: $value'),
+  };
+}
+
+/// Word size types (for programmer mode)
+enum CalcWordType {
+  /// 64-bit
+  CALC_WORD_QWORD(0),
+
+  /// 32-bit
+  CALC_WORD_DWORD(1),
+
+  /// 16-bit
+  CALC_WORD_WORD(2),
+
+  /// 8-bit
+  CALC_WORD_BYTE(3);
+
+  final int value;
+  const CalcWordType(this.value);
+
+  static CalcWordType fromValue(int value) => switch (value) {
+    0 => CALC_WORD_QWORD,
+    1 => CALC_WORD_DWORD,
+    2 => CALC_WORD_WORD,
+    3 => CALC_WORD_BYTE,
+    _ => throw ArgumentError('Unknown value for CalcWordType: $value'),
   };
 }
 

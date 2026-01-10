@@ -6,7 +6,7 @@ Dart FFI bindings to the Windows Calculator engine, providing a full-featured ca
 
 - ✅ **Standard Calculator**: Basic arithmetic operations (add, subtract, multiply, divide)
 - ✅ **Scientific Calculator**: Advanced functions including trigonometry, logarithms, exponentials
-- **Programmer Calculator**: Number base conversions (hex, decimal, octal, binary) and bitwise operations
+- ✅ **Programmer Calculator**: Number base conversions (hex, decimal, octal, binary) and bitwise operations
 - **Memory Operations**: Store, recall, add, subtract values in memory slots
 - ✅ **History Management**: Track and retrieve calculation history per mode
 - **Unit Converter**: Built-in support for various unit conversions
