@@ -118,7 +118,7 @@ void main() {
       expect(decResult, isNot(contains('E')));
 
       // Expected value: 9,223,372,036,854,775,807
-      expect(decResult, contains('9223372036854775807'));
+      expect(decResult, contains('9,223,372,036,854,775,807'));
     });
 
     test('0x8000000000000000 (min negative signed 64-bit)', () {
@@ -136,7 +136,7 @@ void main() {
       // In programmer mode, this should display as negative
       // Expected: -9,223,372,036,854,775,808
       expect(decResult, contains('-'));
-      expect(decResult, contains('9223372036854775808'));
+      expect(decResult, contains('9,223,372,036,854,775,808'));
     });
   });
 }
