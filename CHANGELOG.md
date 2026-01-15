@@ -1,3 +1,10 @@
+## 0.0.3
+
+### Fixed
+
+- **Memory Clear Display Update Issue**
+  - Fixed `calculator_memory_clear_at()` not updating the display layer when clearing a memorized number
+
 ## 0.0.2
 
 ### Added

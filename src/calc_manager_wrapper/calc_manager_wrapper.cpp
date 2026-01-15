@@ -625,7 +625,17 @@ void calculator_memory_subtract_at(CalculatorInstance* instance, int index) {
 
 void calculator_memory_clear_at(CalculatorInstance* instance, int index) {
     if (instance && instance->manager && index >= 0) {
-        instance->manager->MemorizedNumberClear(static_cast<unsigned int>(index));
+        unsigned int uIndex = static_cast<unsigned int>(index);
+
+        instance->manager->MemorizedNumberClear(uIndex);
+
+        if (uIndex < instance->display->memorizedNumbers.size()) {
+            instance->display->memorizedNumbers.erase(
+                instance->display->memorizedNumbers.begin() + index
+            );
+
+            instance->manager->SetMemorizedNumbersString();
+        }
     }
 }
 
