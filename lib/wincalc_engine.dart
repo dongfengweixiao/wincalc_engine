@@ -550,6 +550,12 @@ external int unit_converter_get_unit_id(
   int index,
 );
 
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
+external int unit_converter_is_unit_whimsical(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+);
+
 /// Current unit selection
 @ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>, ffi.Int)>()
 external void unit_converter_set_from_unit(
@@ -617,6 +623,31 @@ external int unit_converter_get_to_value(
 /// Reset
 @ffi.Native<ffi.Void Function(ffi.Pointer<UnitConverterInstance>)>()
 external void unit_converter_reset(ffi.Pointer<UnitConverterInstance> instance);
+
+/// Suggested values (from CalculateSuggested)
+@ffi.Native<ffi.Int Function(ffi.Pointer<UnitConverterInstance>)>()
+external int unit_converter_get_suggested_count(
+  ffi.Pointer<UnitConverterInstance> instance,
+);
+
+@ffi.Native<
+  ffi.Int Function(
+    ffi.Pointer<UnitConverterInstance>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+    ffi.Pointer<ffi.Char>,
+    ffi.Int,
+  )
+>()
+external int unit_converter_get_suggested_value(
+  ffi.Pointer<UnitConverterInstance> instance,
+  int index,
+  ffi.Pointer<ffi.Char> value_buffer,
+  int value_buffer_size,
+  ffi.Pointer<ffi.Char> unit_buffer,
+  int unit_buffer_size,
+);
 
 /// ============================================================================
 /// Backward Compatibility (old function names)

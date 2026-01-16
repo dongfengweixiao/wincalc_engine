@@ -1,3 +1,29 @@
+## 0.0.4
+
+### Added
+
+#### Unit Converter Suggested Values Feature
+
+- **New API: Suggested Values**
+  - `unit_converter_get_suggested_count()` - Get the count of suggested conversion values
+  - `unit_converter_get_suggested_value()` - Get individual suggested value with unit name
+  - Suggested values include both common units (cups, pints, ounces) and whimsical units (coffee cups, bathtubs, swimming pools)
+  - Example: When converting 1 Liter, returns suggestions like "4.23 US cups", "2.11 US pints", "☕ 4.23 Metric cups"
+
+### Fixed
+
+- **Unit Name Display Bug**
+  - Fixed `addRatio()` function to use complete `Unit` objects instead of empty ones
+  - Added `m_unitById` mapping to store complete unit information (id, name, abbreviation)
+  - Previously suggested values showed numeric values but had empty unit names
+  - Now correctly displays: "4.23 Metric cups" instead of "4.23 "
+
+### Changed
+
+- **Enhanced Unit Converter Data Loader**
+  - Internal refactor to properly maintain Unit object references
+  - Improved conversion ratio mapping with complete Unit metadata
+
 ## 0.0.3
 
 ### Fixed

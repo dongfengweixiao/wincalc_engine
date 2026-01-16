@@ -398,6 +398,7 @@ CALC_API int unit_converter_get_unit_count(UnitConverterInstance* instance);
 CALC_API int unit_converter_get_unit_name(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
 CALC_API int unit_converter_get_unit_abbreviation(UnitConverterInstance* instance, int index, char* buffer, int buffer_size);
 CALC_API int unit_converter_get_unit_id(UnitConverterInstance* instance, int index);
+CALC_API int unit_converter_is_unit_whimsical(UnitConverterInstance* instance, int index);
 
 // Current unit selection
 CALC_API void unit_converter_set_from_unit(UnitConverterInstance* instance, int unit_id);
@@ -415,6 +416,10 @@ CALC_API int unit_converter_get_to_value(UnitConverterInstance* instance, char* 
 
 // Reset
 CALC_API void unit_converter_reset(UnitConverterInstance* instance);
+
+// Suggested values (from CalculateSuggested)
+CALC_API int unit_converter_get_suggested_count(UnitConverterInstance* instance);
+CALC_API int unit_converter_get_suggested_value(UnitConverterInstance* instance, int index, char* value_buffer, int value_buffer_size, char* unit_buffer, int unit_buffer_size);
 
 // ============================================================================
 // Unit Converter Commands (same as number input)

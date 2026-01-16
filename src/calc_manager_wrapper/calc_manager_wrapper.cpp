@@ -1015,17 +1015,42 @@ private:
     std::vector<UnitConversionManager::Category> m_categories;
     std::unordered_map<int, std::vector<UnitConversionManager::Unit>> m_categoryUnits;
     std::unordered_map<int, std::unordered_map<UnitConversionManager::Unit, UnitConversionManager::ConversionData, UnitConversionManager::UnitHash>> m_ratios;
+    std::unordered_map<int, UnitConversionManager::Unit> m_unitById; // Map unit ID to complete Unit object
 
-    void addUnit(int categoryId, int unitId, const std::wstring& name, const std::wstring& abbr) {
-        m_categoryUnits[categoryId].push_back(UnitConversionManager::Unit(unitId, name, abbr, true, true, false));
+    void addUnit(int categoryId, int unitId, const std::wstring& name, const std::wstring& abbr, bool isWhimsical = false) {
+        UnitConversionManager::Unit unit(unitId, name, abbr, true, true, isWhimsical);
+        m_categoryUnits[categoryId].push_back(unit);
+        m_unitById[unitId] = unit; // Store complete unit object
     }
 
     void addRatio(int fromUnitId, int toUnitId, double ratio, double offset = 0.0, bool offsetFirst = false) {
-        UnitConversionManager::Unit fromUnit;
-        fromUnit.id = fromUnitId;
-        UnitConversionManager::Unit toUnit;
-        toUnit.id = toUnitId;
-        m_ratios[fromUnitId][toUnit] = UnitConversionManager::ConversionData(ratio, offset, offsetFirst);
+        // Use complete Unit objects from m_unitById instead of creating empty ones
+        // The structure is: m_ratios[fromUnitId][toUnit] = conversionData
+        m_ratios[fromUnitId][m_unitById[toUnitId]] = UnitConversionManager::ConversionData(ratio, offset, offsetFirst);
+    }
+
+    // Helper function to automatically add bidirectional conversions between all units in a category
+    // based on conversion factors to a base unit (like the original Windows Calculator implementation)
+    void addBidirectionalConversions(int categoryId, std::vector<std::pair<int, double>> unitFactors) {
+        // unitFactors: vector of (unitId, factorToBaseUnit)
+        // For each pair of units, calculate the conversion ratio: factor_A / factor_B
+        for (size_t i = 0; i < unitFactors.size(); i++) {
+            for (size_t j = 0; j < unitFactors.size(); j++) {
+                int fromUnitId = unitFactors[i].first;
+                int toUnitId = unitFactors[j].first;
+                double fromFactor = unitFactors[i].second;
+                double toFactor = unitFactors[j].second;
+
+                if (i == j) {
+                    // Same unit: add identity conversion (ratio = 1.0)
+                    addRatio(fromUnitId, toUnitId, 1.0);
+                } else {
+                    // Different units: calculate conversion ratio
+                    double ratio = fromFactor / toFactor;
+                    addRatio(fromUnitId, toUnitId, ratio);
+                }
+            }
+        }
     }
 
     void initLengthUnits() {
@@ -1041,42 +1066,20 @@ private:
         addUnit(0, 108, L"Feet", L"ft");
         addUnit(0, 109, L"Inches", L"in");
 
-        // Conversion ratios to meters (base unit)
-        // From meters
-        addRatio(100, 101, 0.001);      // m to km
-        addRatio(100, 102, 100);        // m to cm
-        addRatio(100, 103, 1000);       // m to mm
-        addRatio(100, 104, 1000000);    // m to μm
-        addRatio(100, 105, 1000000000); // m to nm
-        addRatio(100, 106, 0.000621371);// m to mi
-        addRatio(100, 107, 1.09361);    // m to yd
-        addRatio(100, 108, 3.28084);    // m to ft
-        addRatio(100, 109, 39.3701);    // m to in
-
-        // From km
-        addRatio(101, 100, 1000);       // km to m
-        addRatio(101, 102, 100000);     // km to cm
-        addRatio(101, 106, 0.621371);   // km to mi
-
-        // From cm
-        addRatio(102, 100, 0.01);       // cm to m
-        addRatio(102, 103, 10);         // cm to mm
-        addRatio(102, 109, 0.393701);   // cm to in
-
-        // From inches
-        addRatio(109, 100, 0.0254);     // in to m
-        addRatio(109, 102, 2.54);       // in to cm
-        addRatio(109, 108, 1.0/12.0);   // in to ft
-
-        // From feet
-        addRatio(108, 100, 0.3048);     // ft to m
-        addRatio(108, 109, 12);         // ft to in
-        addRatio(108, 107, 1.0/3.0);    // ft to yd
-
-        // From miles
-        addRatio(106, 100, 1609.34);    // mi to m
-        addRatio(106, 101, 1.60934);    // mi to km
-        addRatio(106, 108, 5280);       // mi to ft
+        // Use automatic bidirectional conversion based on factors to meters (base unit)
+        // Factors are relative to meters: 1 m = 1.0, 1 km = 1000 m, etc.
+        std::vector<std::pair<int, double>> lengthFactors;
+        lengthFactors.push_back(std::make_pair(100, 1.0));          // Meters (base)
+        lengthFactors.push_back(std::make_pair(101, 1000.0));       // Kilometers
+        lengthFactors.push_back(std::make_pair(102, 0.01));         // Centimeters
+        lengthFactors.push_back(std::make_pair(103, 0.001));        // Millimeters
+        lengthFactors.push_back(std::make_pair(104, 0.000001));     // Micrometers
+        lengthFactors.push_back(std::make_pair(105, 0.000000001));  // Nanometers
+        lengthFactors.push_back(std::make_pair(106, 1609.344));     // Miles
+        lengthFactors.push_back(std::make_pair(107, 0.9144));       // Yards
+        lengthFactors.push_back(std::make_pair(108, 0.3048));       // Feet
+        lengthFactors.push_back(std::make_pair(109, 0.0254));       // Inches
+        addBidirectionalConversions(0, lengthFactors);
     }
 
     void initWeightUnits() {
@@ -1089,16 +1092,16 @@ private:
         addUnit(1, 205, L"Ounces", L"oz");
         addUnit(1, 206, L"Stones", L"st");
 
-        // Conversion ratios
-        addRatio(200, 201, 1000);       // kg to g
-        addRatio(200, 202, 1000000);    // kg to mg
-        addRatio(200, 203, 0.001);      // kg to t
-        addRatio(200, 204, 2.20462);    // kg to lb
-        addRatio(200, 205, 35.274);     // kg to oz
-
-        addRatio(201, 200, 0.001);      // g to kg
-        addRatio(204, 200, 0.453592);   // lb to kg
-        addRatio(205, 200, 0.0283495);  // oz to kg
+        // Use automatic bidirectional conversion based on factors to kilograms (base unit)
+        std::vector<std::pair<int, double>> weightFactors;
+        weightFactors.push_back(std::make_pair(200, 1.0));          // Kilograms (base)
+        weightFactors.push_back(std::make_pair(201, 0.001));        // Grams
+        weightFactors.push_back(std::make_pair(202, 0.000001));     // Milligrams
+        weightFactors.push_back(std::make_pair(203, 1000.0));       // Metric tons
+        weightFactors.push_back(std::make_pair(204, 0.45359237));   // Pounds
+        weightFactors.push_back(std::make_pair(205, 0.028349523125)); // Ounces
+        weightFactors.push_back(std::make_pair(206, 6.35029318));    // Stones
+        addBidirectionalConversions(1, weightFactors);
     }
 
     void initTemperatureUnits() {
@@ -1145,11 +1148,18 @@ private:
         addUnit(4, 507, L"Square inches", L"in²");
         addUnit(4, 508, L"Acres", L"ac");
 
-        addRatio(500, 501, 1e-6);
-        addRatio(500, 502, 10000);
-        addRatio(500, 503, 0.0001);
-        addRatio(500, 506, 10.7639);
-        addRatio(500, 507, 1550);
+        // Use automatic bidirectional conversion (factors to square meters as base)
+        std::vector<std::pair<int, double>> areaFactors;
+        areaFactors.push_back(std::make_pair(500, 1.0));         // Square meters (base)
+        areaFactors.push_back(std::make_pair(501, 1000000.0));   // Square kilometers
+        areaFactors.push_back(std::make_pair(502, 0.0001));      // Square centimeters
+        areaFactors.push_back(std::make_pair(503, 10000.0));     // Hectares
+        areaFactors.push_back(std::make_pair(504, 2589988.110336)); // Square miles
+        areaFactors.push_back(std::make_pair(505, 0.83612736));   // Square yards
+        areaFactors.push_back(std::make_pair(506, 0.09290304));   // Square feet
+        areaFactors.push_back(std::make_pair(507, 0.00064516));   // Square inches
+        areaFactors.push_back(std::make_pair(508, 4046.8564224)); // Acres
+        addBidirectionalConversions(4, areaFactors);
     }
 
     void initSpeedUnits() {
@@ -1161,11 +1171,15 @@ private:
         addUnit(5, 604, L"Knots", L"kn");
         addUnit(5, 605, L"Mach", L"Ma");
 
-        addRatio(600, 601, 3.6);
-        addRatio(600, 602, 2.23694);
-        addRatio(600, 603, 3.28084);
-        addRatio(600, 604, 1.94384);
-        addRatio(600, 605, 0.00291545);
+        // Use automatic bidirectional conversion (factors to m/s as base, scaled by 100)
+        std::vector<std::pair<int, double>> speedFactors;
+        speedFactors.push_back(std::make_pair(600, 100.0));      // m/s (base scaled)
+        speedFactors.push_back(std::make_pair(601, 27.77777777777778)); // km/h
+        speedFactors.push_back(std::make_pair(602, 44.704));     // mph
+        speedFactors.push_back(std::make_pair(603, 30.48));      // ft/s
+        speedFactors.push_back(std::make_pair(604, 51.444));     // knots
+        speedFactors.push_back(std::make_pair(605, 340.3));      // Mach
+        addBidirectionalConversions(5, speedFactors);
     }
 
     void initTimeUnits() {
@@ -1180,14 +1194,18 @@ private:
         addUnit(6, 707, L"Weeks", L"wk");
         addUnit(6, 708, L"Years", L"yr");
 
-        addRatio(700, 701, 1000);
-        addRatio(700, 702, 1000000);
-        addRatio(700, 703, 1000000000);
-        addRatio(700, 704, 1.0/60.0);
-        addRatio(700, 705, 1.0/3600.0);
-        addRatio(700, 706, 1.0/86400.0);
-        addRatio(700, 707, 1.0/604800.0);
-        addRatio(700, 708, 1.0/31536000.0);
+        // Use automatic bidirectional conversion (factors to seconds as base)
+        std::vector<std::pair<int, double>> timeFactors;
+        timeFactors.push_back(std::make_pair(700, 1.0));           // Seconds (base)
+        timeFactors.push_back(std::make_pair(701, 0.001));        // Milliseconds
+        timeFactors.push_back(std::make_pair(702, 0.000001));     // Microseconds
+        timeFactors.push_back(std::make_pair(703, 0.000000001));  // Nanoseconds
+        timeFactors.push_back(std::make_pair(704, 60.0));         // Minutes
+        timeFactors.push_back(std::make_pair(705, 3600.0));       // Hours
+        timeFactors.push_back(std::make_pair(706, 86400.0));      // Days
+        timeFactors.push_back(std::make_pair(707, 604800.0));     // Weeks
+        timeFactors.push_back(std::make_pair(708, 31557600.0));   // Years (using 365.25 days)
+        addBidirectionalConversions(6, timeFactors);
     }
 
     void initPowerUnits() {
@@ -1198,10 +1216,14 @@ private:
         addUnit(7, 803, L"Horsepower (metric)", L"hp");
         addUnit(7, 804, L"BTU per minute", L"BTU/min");
 
-        addRatio(800, 801, 0.001);
-        addRatio(800, 802, 0.000001);
-        addRatio(800, 803, 0.00135962);
-        addRatio(800, 804, 0.0568691);
+        // Use automatic bidirectional conversion (factors to Watts as base)
+        std::vector<std::pair<int, double>> powerFactors;
+        powerFactors.push_back(std::make_pair(800, 1.0));         // Watts (base)
+        powerFactors.push_back(std::make_pair(801, 1000.0));      // Kilowatts
+        powerFactors.push_back(std::make_pair(802, 1000000.0));   // Megawatts
+        powerFactors.push_back(std::make_pair(803, 735.49875));   // Horsepower
+        powerFactors.push_back(std::make_pair(804, 17.58426466666667)); // BTU/min
+        addBidirectionalConversions(7, powerFactors);
     }
 
     void initDataUnits() {
@@ -1272,18 +1294,45 @@ private:
         addUnit(11, 1211, L"Imperial gallons", L"imp gal");
         addUnit(11, 1212, L"Cubic feet", L"ft³");
         addUnit(11, 1213, L"Cubic inches", L"in³");
+        addUnit(11, 1214, L"Cubic yards", L"yd³");
+        addUnit(11, 1215, L"Imperial fluid ounces", L"imp fl oz");
+        addUnit(11, 1216, L"Imperial pints", L"imp pt");
+        addUnit(11, 1217, L"Imperial quarts", L"imp qt");
+        addUnit(11, 1218, L"Imperial teaspoons", L"imp tsp");   // UK teaspoons
+        addUnit(11, 1219, L"Imperial tablespoons", L"imp tbsp"); // UK tablespoons
 
-        addRatio(1200, 1201, 1000);
-        addRatio(1200, 1202, 0.001);
-        addRatio(1200, 1203, 1000);
-        addRatio(1200, 1204, 0.264172);
-        addRatio(1200, 1205, 1.05669);
-        addRatio(1200, 1206, 2.11338);
-        addRatio(1200, 1207, 4.22675);
-        addRatio(1200, 1208, 33.814);
-        addRatio(1200, 1211, 0.219969);
-        addRatio(1200, 1212, 0.0353147);
-        addRatio(1200, 1213, 61.0237);
+        // Whimsical units (fun units for educational purposes)
+        addUnit(11, 1220, L"Metric cups", L"metric cup", true);       // Same as CoffeeCup in original
+        addUnit(11, 1221, L"Bathtubs", L"bathtub", true);             // Large volume
+        addUnit(11, 1222, L"Swimming pools", L"pool", true);          // Very large volume
+
+        // Use automatic bidirectional conversion based on factors to cubic centimeters (base unit)
+        // Factors are from original Windows Calculator code (cm³ = 1 as base)
+        std::vector<std::pair<int, double>> volumeFactors;
+        volumeFactors.push_back(std::make_pair(1200, 1000.0));        // Liters
+        volumeFactors.push_back(std::make_pair(1201, 1.0));           // Milliliters
+        volumeFactors.push_back(std::make_pair(1202, 1000000.0));     // Cubic meters
+        volumeFactors.push_back(std::make_pair(1203, 1.0));           // Cubic centimeters (base)
+        volumeFactors.push_back(std::make_pair(1204, 3785.411784));   // US gallons
+        volumeFactors.push_back(std::make_pair(1205, 946.352946));    // US quarts
+        volumeFactors.push_back(std::make_pair(1206, 473.176473));    // US pints
+        volumeFactors.push_back(std::make_pair(1207, 236.588237));    // US cups
+        volumeFactors.push_back(std::make_pair(1208, 29.5735295625)); // US fluid ounces
+        volumeFactors.push_back(std::make_pair(1209, 14.78676478125));// US tablespoons
+        volumeFactors.push_back(std::make_pair(1210, 4.92892159375)); // US teaspoons
+        volumeFactors.push_back(std::make_pair(1211, 4546.09));       // Imperial gallons
+        volumeFactors.push_back(std::make_pair(1212, 28316.846592));  // Cubic feet
+        volumeFactors.push_back(std::make_pair(1213, 16.387064));     // Cubic inches
+        volumeFactors.push_back(std::make_pair(1214, 764554.857984)); // Cubic yards
+        volumeFactors.push_back(std::make_pair(1215, 28.4130625));    // Imperial fluid ounces
+        volumeFactors.push_back(std::make_pair(1216, 568.26125));     // Imperial pints
+        volumeFactors.push_back(std::make_pair(1217, 1136.5225));     // Imperial quarts
+        volumeFactors.push_back(std::make_pair(1218, 3.5516328125));  // Imperial teaspoons (UK tsp)
+        volumeFactors.push_back(std::make_pair(1219, 17.7581640625)); // Imperial tablespoons (UK tbsp)
+        volumeFactors.push_back(std::make_pair(1220, 236.5882));      // Metric cups (whimsical)
+        volumeFactors.push_back(std::make_pair(1221, 378541.2));      // Bathtubs (whimsical)
+        volumeFactors.push_back(std::make_pair(1222, 3750000000.0));  // Swimming pools (whimsical)
+        addBidirectionalConversions(11, volumeFactors);
     }
 };
 
@@ -1295,13 +1344,16 @@ class UnitConverterVMCallbackImpl : public UnitConversionManager::IUnitConverter
 public:
     std::wstring fromValue;
     std::wstring toValue;
+    std::vector<std::tuple<std::wstring, UnitConversionManager::Unit>> suggestedValues;
 
     void DisplayCallback(const std::wstring& from, const std::wstring& to) override {
         fromValue = from;
         toValue = to;
     }
 
-    void SuggestedValueCallback(const std::vector<std::tuple<std::wstring, UnitConversionManager::Unit>>& /*suggestedValues*/) override {}
+    void SuggestedValueCallback(const std::vector<std::tuple<std::wstring, UnitConversionManager::Unit>>& suggestedValues) override {
+        this->suggestedValues = suggestedValues;
+    }
     void MaxDigitsReached() override {}
 };
 
@@ -1427,6 +1479,13 @@ int unit_converter_get_unit_id(UnitConverterInstance* instance, int index) {
         return -1;
     }
     return instance->currentUnits[index].id;
+}
+
+int unit_converter_is_unit_whimsical(UnitConverterInstance* instance, int index) {
+    if (!instance || index < 0 || index >= static_cast<int>(instance->currentUnits.size())) {
+        return 0;
+    }
+    return instance->currentUnits[index].isWhimsical ? 1 : 0;
 }
 
 void unit_converter_set_from_unit(UnitConverterInstance* instance, int unit_id) {
@@ -1555,4 +1614,51 @@ int calculator_get_result_length(CalculatorInstance* instance) {
 
 int calculator_get_result(CalculatorInstance* instance, char* buffer, int buffer_size) {
     return calculator_get_primary_display(instance, buffer, buffer_size);
+}
+
+// ============================================================================
+// Suggested Values Functions (from CalculateSuggested)
+// ============================================================================
+
+int unit_converter_get_suggested_count(UnitConverterInstance* instance) {
+    if (!instance) {
+        return -1;
+    }
+    if (!instance->callback) {
+        return -2;
+    }
+    return static_cast<int>(instance->callback->suggestedValues.size());
+}
+
+int unit_converter_get_suggested_value(UnitConverterInstance* instance, int index, char* value_buffer, int value_buffer_size, char* unit_buffer, int unit_buffer_size) {
+    if (!instance) return -1;
+    if (!instance->callback) return -2;
+    if (!value_buffer || value_buffer_size <= 0) return -3;
+    if (!unit_buffer || unit_buffer_size <= 0) return -4;
+
+    const auto& suggested = instance->callback->suggestedValues;
+    if (index < 0 || index >= static_cast<int>(suggested.size())) {
+        return -5;  // Index out of range
+    }
+
+    const auto& [valueStr, unit] = suggested[index];
+
+    // Convert value to UTF-8
+    std::string valueUtf8 = wstring_to_utf8(valueStr);
+    if (valueUtf8.empty() && !valueStr.empty()) {
+        return -6;  // Conversion failed
+    }
+    int valueLen = copy_to_buffer(valueUtf8, value_buffer, value_buffer_size);
+    if (valueLen < 0) return -7;
+
+    // Convert unit name to UTF-8
+    std::string unitUtf8 = wstring_to_utf8(unit.name);
+    if (unitUtf8.empty() && !unit.name.empty()) {
+        return -8;  // Conversion failed
+    }
+    int unitLen = copy_to_buffer(unitUtf8, unit_buffer, unit_buffer_size);
+    if (unitLen < 0) return -9;
+
+    // Return unit ID on success (>= 0)
+    return unit.id;
 }
