@@ -1054,58 +1054,92 @@ private:
     }
 
     void initLengthUnits() {
-        // Length units (category 0)
+        // Length units (category 0) - Reordered to user's specification
+        addUnit(0, 111, L"Angstroms", L"Å");
+        addUnit(0, 105, L"Nanometers", L"nm");
+        addUnit(0, 104, L"Micrometers", L"μm");
+        addUnit(0, 103, L"Millimeters", L"mm");
+        addUnit(0, 102, L"Centimeters", L"cm");
         addUnit(0, 100, L"Meters", L"m");
         addUnit(0, 101, L"Kilometers", L"km");
-        addUnit(0, 102, L"Centimeters", L"cm");
-        addUnit(0, 103, L"Millimeters", L"mm");
-        addUnit(0, 104, L"Micrometers", L"μm");
-        addUnit(0, 105, L"Nanometers", L"nm");
-        addUnit(0, 106, L"Miles", L"mi");
-        addUnit(0, 107, L"Yards", L"yd");
-        addUnit(0, 108, L"Feet", L"ft");
         addUnit(0, 109, L"Inches", L"in");
+        addUnit(0, 108, L"Feet", L"ft");
+        addUnit(0, 107, L"Yards", L"yd");
+        addUnit(0, 106, L"Miles", L"mi");
+        addUnit(0, 110, L"Nautical miles", L"nmi");
+
+        // Whimsical units (at the end)
+        addUnit(0, 180, L"Paperclips", L"paperclip", true);       // Small length unit
+        addUnit(0, 181, L"Hands", L"hand", true);                 // Horse height unit
+        addUnit(0, 182, L"Jumbo jets", L"jumbo jet", true);       // Large length unit
 
         // Use automatic bidirectional conversion based on factors to meters (base unit)
         // Factors are relative to meters: 1 m = 1.0, 1 km = 1000 m, etc.
         std::vector<std::pair<int, double>> lengthFactors;
+        lengthFactors.push_back(std::make_pair(111, 0.0000000001)); // Angstroms
+        lengthFactors.push_back(std::make_pair(105, 0.000000001));  // Nanometers
+        lengthFactors.push_back(std::make_pair(104, 0.000001));     // Micrometers
+        lengthFactors.push_back(std::make_pair(103, 0.001));        // Millimeters
+        lengthFactors.push_back(std::make_pair(102, 0.01));         // Centimeters
         lengthFactors.push_back(std::make_pair(100, 1.0));          // Meters (base)
         lengthFactors.push_back(std::make_pair(101, 1000.0));       // Kilometers
-        lengthFactors.push_back(std::make_pair(102, 0.01));         // Centimeters
-        lengthFactors.push_back(std::make_pair(103, 0.001));        // Millimeters
-        lengthFactors.push_back(std::make_pair(104, 0.000001));     // Micrometers
-        lengthFactors.push_back(std::make_pair(105, 0.000000001));  // Nanometers
-        lengthFactors.push_back(std::make_pair(106, 1609.344));     // Miles
-        lengthFactors.push_back(std::make_pair(107, 0.9144));       // Yards
-        lengthFactors.push_back(std::make_pair(108, 0.3048));       // Feet
         lengthFactors.push_back(std::make_pair(109, 0.0254));       // Inches
+        lengthFactors.push_back(std::make_pair(108, 0.3048));       // Feet
+        lengthFactors.push_back(std::make_pair(107, 0.9144));       // Yards
+        lengthFactors.push_back(std::make_pair(106, 1609.344));     // Miles
+        lengthFactors.push_back(std::make_pair(110, 1852.0));       // Nautical miles
+        lengthFactors.push_back(std::make_pair(180, 0.035052));     // Paperclips
+        lengthFactors.push_back(std::make_pair(181, 0.18669));      // Hands
+        lengthFactors.push_back(std::make_pair(182, 76.0));         // Jumbo jets
         addBidirectionalConversions(0, lengthFactors);
     }
 
     void initWeightUnits() {
-        // Weight units (category 1)
-        addUnit(1, 200, L"Kilograms", L"kg");
-        addUnit(1, 201, L"Grams", L"g");
+        // Weight units (category 1) - Reordered to user's specification
+        addUnit(1, 207, L"Carats", L"ct");
         addUnit(1, 202, L"Milligrams", L"mg");
+        addUnit(1, 208, L"Centigrams", L"cg");
+        addUnit(1, 209, L"Decigrams", L"dg");
+        addUnit(1, 201, L"Grams", L"g");
+        addUnit(1, 210, L"Decagrams", L"dag");
+        addUnit(1, 211, L"Hectograms", L"hg");
+        addUnit(1, 200, L"Kilograms", L"kg");
         addUnit(1, 203, L"Metric tons", L"t");
-        addUnit(1, 204, L"Pounds", L"lb");
         addUnit(1, 205, L"Ounces", L"oz");
+        addUnit(1, 204, L"Pounds", L"lb");
         addUnit(1, 206, L"Stones", L"st");
+        addUnit(1, 212, L"Short tons", L"short ton");
+
+        // Whimsical units (at the end)
+        addUnit(1, 280, L"Snowflakes", L"snowflake", true);       // Very light weight
+        addUnit(1, 281, L"Soccer balls", L"soccer ball", true);   // Sports equipment weight
+        addUnit(1, 282, L"Elephants", L"elephant", true);         // Large animal weight
+        addUnit(1, 283, L"Whales", L"whale", true);               // Very large animal weight
 
         // Use automatic bidirectional conversion based on factors to kilograms (base unit)
         std::vector<std::pair<int, double>> weightFactors;
-        weightFactors.push_back(std::make_pair(200, 1.0));          // Kilograms (base)
-        weightFactors.push_back(std::make_pair(201, 0.001));        // Grams
+        weightFactors.push_back(std::make_pair(207, 0.0002));        // Carats
         weightFactors.push_back(std::make_pair(202, 0.000001));     // Milligrams
+        weightFactors.push_back(std::make_pair(208, 0.00001));      // Centigrams
+        weightFactors.push_back(std::make_pair(209, 0.0001));       // Decigrams
+        weightFactors.push_back(std::make_pair(201, 0.001));        // Grams
+        weightFactors.push_back(std::make_pair(210, 0.01));         // Decagrams
+        weightFactors.push_back(std::make_pair(211, 0.1));          // Hectograms
+        weightFactors.push_back(std::make_pair(200, 1.0));          // Kilograms (base)
         weightFactors.push_back(std::make_pair(203, 1000.0));       // Metric tons
-        weightFactors.push_back(std::make_pair(204, 0.45359237));   // Pounds
         weightFactors.push_back(std::make_pair(205, 0.028349523125)); // Ounces
-        weightFactors.push_back(std::make_pair(206, 6.35029318));    // Stones
+        weightFactors.push_back(std::make_pair(204, 0.45359237));   // Pounds
+        weightFactors.push_back(std::make_pair(206, 6.35029318));   // Stones
+        weightFactors.push_back(std::make_pair(212, 907.18474));    // Short tons
+        weightFactors.push_back(std::make_pair(280, 0.000002));     // Snowflakes
+        weightFactors.push_back(std::make_pair(281, 0.4325));       // Soccer balls
+        weightFactors.push_back(std::make_pair(282, 4000.0));       // Elephants
+        weightFactors.push_back(std::make_pair(283, 90000.0));      // Whales
         addBidirectionalConversions(1, weightFactors);
     }
 
     void initTemperatureUnits() {
-        // Temperature units (category 2)
+        // Temperature units (category 2) - Reordered to match source
         addUnit(2, 300, L"Celsius", L"°C");
         addUnit(2, 301, L"Fahrenheit", L"°F");
         addUnit(2, 302, L"Kelvin", L"K");
@@ -1123,76 +1157,114 @@ private:
     }
 
     void initEnergyUnits() {
-        // Energy units (category 3)
+        // Energy units (category 3) - Reordered to match source
+        addUnit(3, 406, L"Electronvolts", L"eV");
         addUnit(3, 400, L"Joules", L"J");
         addUnit(3, 401, L"Kilojoules", L"kJ");
         addUnit(3, 402, L"Calories", L"cal");
         addUnit(3, 403, L"Kilocalories", L"kcal");
-        addUnit(3, 404, L"Watt-hours", L"Wh");
-        addUnit(3, 405, L"Kilowatt-hours", L"kWh");
-        addUnit(3, 406, L"Electronvolts", L"eV");
+        addUnit(3, 408, L"Foot-pounds", L"ft-lb");
         addUnit(3, 407, L"British thermal units", L"BTU");
+        addUnit(3, 405, L"Kilowatt-hours", L"kWh");
 
-        addRatio(400, 401, 0.001);
-        addRatio(400, 402, 0.239006);
-        addRatio(400, 403, 0.000239006);
-        addRatio(400, 404, 0.000277778);
-        addRatio(400, 405, 2.77778e-7);
-        addRatio(400, 407, 0.000947817);
+        // Whimsical units (at the end)
+        addUnit(3, 480, L"Batteries", L"battery", true);         // AA battery energy
+        addUnit(3, 481, L"Bananas", L"banana", true);            // Food energy
+        addUnit(3, 482, L"Slices of cake", L"slice of cake", true); // Dessert energy
+
+        // Use automatic bidirectional conversion based on factors to Joules (base unit)
+        // Factors are relative to Joules: 1 J = 1.0, etc.
+        std::vector<std::pair<int, double>> energyFactors;
+        energyFactors.push_back(std::make_pair(406, 0.0000000000000000001602176565)); // Electronvolts
+        energyFactors.push_back(std::make_pair(400, 1.0));          // Joules (base)
+        energyFactors.push_back(std::make_pair(401, 1000.0));       // Kilojoules
+        energyFactors.push_back(std::make_pair(402, 4.184));        // Calories (thermochemical)
+        energyFactors.push_back(std::make_pair(403, 4184.0));       // Kilocalories
+        energyFactors.push_back(std::make_pair(408, 1.3558179483314)); // Foot-pounds
+        energyFactors.push_back(std::make_pair(407, 1055.056));     // British thermal units
+        energyFactors.push_back(std::make_pair(405, 3600000.0));    // Kilowatt-hours
+        energyFactors.push_back(std::make_pair(480, 9000.0));       // Batteries (whimsical)
+        energyFactors.push_back(std::make_pair(481, 439614.0));     // Bananas (whimsical)
+        energyFactors.push_back(std::make_pair(482, 1046700.0));    // Slices of cake (whimsical)
+        addBidirectionalConversions(3, energyFactors);
     }
 
     void initAreaUnits() {
-        // Area units (category 4)
-        addUnit(4, 500, L"Square meters", L"m²");
-        addUnit(4, 501, L"Square kilometers", L"km²");
+        // Area units (category 4) - Reordered to match source
+        addUnit(4, 509, L"Square millimeters", L"mm²");
         addUnit(4, 502, L"Square centimeters", L"cm²");
+        addUnit(4, 500, L"Square meters", L"m²");
         addUnit(4, 503, L"Hectares", L"ha");
-        addUnit(4, 504, L"Square miles", L"mi²");
-        addUnit(4, 505, L"Square yards", L"yd²");
-        addUnit(4, 506, L"Square feet", L"ft²");
+        addUnit(4, 501, L"Square kilometers", L"km²");
         addUnit(4, 507, L"Square inches", L"in²");
+        addUnit(4, 506, L"Square feet", L"ft²");
+        addUnit(4, 505, L"Square yards", L"yd²");
         addUnit(4, 508, L"Acres", L"ac");
+        addUnit(4, 504, L"Square miles", L"mi²");
+
+        // Whimsical units (at the end)
+        addUnit(4, 580, L"Hands", L"hand", true);              // Small area unit
+        addUnit(4, 581, L"Papers", L"paper", true);             // Paper sheet area
+        addUnit(4, 582, L"Soccer fields", L"soccer field", true); // Sports field area
+        addUnit(4, 583, L"Castles", L"castle", true);           // Large building area
+        addUnit(4, 584, L"Pyeong", L"pyeong", true);           // Korean/Japanese floor area
 
         // Use automatic bidirectional conversion (factors to square meters as base)
         std::vector<std::pair<int, double>> areaFactors;
-        areaFactors.push_back(std::make_pair(500, 1.0));         // Square meters (base)
-        areaFactors.push_back(std::make_pair(501, 1000000.0));   // Square kilometers
+        areaFactors.push_back(std::make_pair(509, 0.000001));    // Square millimeters
         areaFactors.push_back(std::make_pair(502, 0.0001));      // Square centimeters
+        areaFactors.push_back(std::make_pair(500, 1.0));         // Square meters (base)
         areaFactors.push_back(std::make_pair(503, 10000.0));     // Hectares
-        areaFactors.push_back(std::make_pair(504, 2589988.110336)); // Square miles
-        areaFactors.push_back(std::make_pair(505, 0.83612736));   // Square yards
-        areaFactors.push_back(std::make_pair(506, 0.09290304));   // Square feet
+        areaFactors.push_back(std::make_pair(501, 1000000.0));   // Square kilometers
         areaFactors.push_back(std::make_pair(507, 0.00064516));   // Square inches
+        areaFactors.push_back(std::make_pair(506, 0.09290304));   // Square feet
+        areaFactors.push_back(std::make_pair(505, 0.83612736));   // Square yards
         areaFactors.push_back(std::make_pair(508, 4046.8564224)); // Acres
+        areaFactors.push_back(std::make_pair(504, 2589988.110336)); // Square miles
+        areaFactors.push_back(std::make_pair(580, 0.012516104));  // Hands
+        areaFactors.push_back(std::make_pair(581, 0.06032246));   // Papers
+        areaFactors.push_back(std::make_pair(582, 10869.66));     // Soccer fields
+        areaFactors.push_back(std::make_pair(583, 100000.0));     // Castles
+        areaFactors.push_back(std::make_pair(584, 400.0 / 121.0)); // Pyeong (~3.30579)
         addBidirectionalConversions(4, areaFactors);
     }
 
     void initSpeedUnits() {
-        // Speed units (category 5)
+        // Speed units (category 5) - Reordered to match source
+        addUnit(5, 606, L"Centimeters per second", L"cm/s");
         addUnit(5, 600, L"Meters per second", L"m/s");
         addUnit(5, 601, L"Kilometers per hour", L"km/h");
-        addUnit(5, 602, L"Miles per hour", L"mph");
         addUnit(5, 603, L"Feet per second", L"ft/s");
+        addUnit(5, 602, L"Miles per hour", L"mph");
         addUnit(5, 604, L"Knots", L"kn");
         addUnit(5, 605, L"Mach", L"Ma");
 
-        // Use automatic bidirectional conversion (factors to m/s as base, scaled by 100)
+        // Whimsical units (at the end)
+        addUnit(5, 680, L"Turtles", L"turtle", true);            // Slow creature speed
+        addUnit(5, 681, L"Horses", L"horse", true);              // Animal galloping speed
+        addUnit(5, 682, L"Jets", L"jet", true);                  // Aircraft speed
+
+        // Use automatic bidirectional conversion (factors to m/s as base)
+        // Factors are from original Windows Calculator code (m/s = 100 as base)
         std::vector<std::pair<int, double>> speedFactors;
-        speedFactors.push_back(std::make_pair(600, 100.0));      // m/s (base scaled)
+        speedFactors.push_back(std::make_pair(606, 1.0));        // cm/s
+        speedFactors.push_back(std::make_pair(600, 100.0));      // m/s (base)
         speedFactors.push_back(std::make_pair(601, 27.77777777777778)); // km/h
-        speedFactors.push_back(std::make_pair(602, 44.704));     // mph
         speedFactors.push_back(std::make_pair(603, 30.48));      // ft/s
+        speedFactors.push_back(std::make_pair(602, 44.704));     // mph
         speedFactors.push_back(std::make_pair(604, 51.444));     // knots
-        speedFactors.push_back(std::make_pair(605, 340.3));      // Mach
+        speedFactors.push_back(std::make_pair(605, 34030.0));     // Mach
+        speedFactors.push_back(std::make_pair(680, 8.94));       // Turtles (whimsical)
+        speedFactors.push_back(std::make_pair(681, 2011.5));     // Horses (whimsical)
+        speedFactors.push_back(std::make_pair(682, 24585.0));    // Jets (whimsical)
         addBidirectionalConversions(5, speedFactors);
     }
 
     void initTimeUnits() {
-        // Time units (category 6)
-        addUnit(6, 700, L"Seconds", L"s");
-        addUnit(6, 701, L"Milliseconds", L"ms");
+        // Time units (category 6) - Reordered to match source
         addUnit(6, 702, L"Microseconds", L"μs");
-        addUnit(6, 703, L"Nanoseconds", L"ns");
+        addUnit(6, 701, L"Milliseconds", L"ms");
+        addUnit(6, 700, L"Seconds", L"s");
         addUnit(6, 704, L"Minutes", L"min");
         addUnit(6, 705, L"Hours", L"h");
         addUnit(6, 706, L"Days", L"d");
@@ -1201,10 +1273,9 @@ private:
 
         // Use automatic bidirectional conversion (factors to seconds as base)
         std::vector<std::pair<int, double>> timeFactors;
-        timeFactors.push_back(std::make_pair(700, 1.0));           // Seconds (base)
-        timeFactors.push_back(std::make_pair(701, 0.001));        // Milliseconds
         timeFactors.push_back(std::make_pair(702, 0.000001));     // Microseconds
-        timeFactors.push_back(std::make_pair(703, 0.000000001));  // Nanoseconds
+        timeFactors.push_back(std::make_pair(701, 0.001));        // Milliseconds
+        timeFactors.push_back(std::make_pair(700, 1.0));           // Seconds (base)
         timeFactors.push_back(std::make_pair(704, 60.0));         // Minutes
         timeFactors.push_back(std::make_pair(705, 3600.0));       // Hours
         timeFactors.push_back(std::make_pair(706, 86400.0));      // Days
@@ -1214,127 +1285,208 @@ private:
     }
 
     void initPowerUnits() {
-        // Power units (category 7)
+        // Power units (category 7) - Reordered to match source
         addUnit(7, 800, L"Watts", L"W");
         addUnit(7, 801, L"Kilowatts", L"kW");
-        addUnit(7, 802, L"Megawatts", L"MW");
-        addUnit(7, 803, L"Horsepower (metric)", L"hp");
-        addUnit(7, 804, L"BTU per minute", L"BTU/min");
+        addUnit(7, 803, L"Horsepower (US)", L"hp");
+        addUnit(7, 805, L"Foot-pounds/minute", L"ft-lb/min");
+        addUnit(7, 804, L"BTU/minute", L"BTU/min");
+
+        // Whimsical units (at the end)
+        addUnit(7, 780, L"Light bulbs", L"light bulb", true);     // Household lighting
+        addUnit(7, 781, L"Horses", L"horse", true);               // Animal power
+        addUnit(7, 782, L"Train engines", L"train engine", true); // Locomotive power
 
         // Use automatic bidirectional conversion (factors to Watts as base)
         std::vector<std::pair<int, double>> powerFactors;
         powerFactors.push_back(std::make_pair(800, 1.0));         // Watts (base)
         powerFactors.push_back(std::make_pair(801, 1000.0));      // Kilowatts
-        powerFactors.push_back(std::make_pair(802, 1000000.0));   // Megawatts
-        powerFactors.push_back(std::make_pair(803, 735.49875));   // Horsepower
-        powerFactors.push_back(std::make_pair(804, 17.58426466666667)); // BTU/min
+        powerFactors.push_back(std::make_pair(803, 745.69987158227022)); // Horsepower (US)
+        powerFactors.push_back(std::make_pair(805, 0.0225969658055233)); // Foot-pounds/minute
+        powerFactors.push_back(std::make_pair(804, 17.58426666666667)); // BTU/min
+        powerFactors.push_back(std::make_pair(780, 60.0));        // Light bulbs (whimsical)
+        powerFactors.push_back(std::make_pair(781, 745.7));       // Horses (whimsical)
+        powerFactors.push_back(std::make_pair(782, 2982799.486329081)); // Train engines (whimsical)
         addBidirectionalConversions(7, powerFactors);
     }
 
     void initDataUnits() {
-        // Data units (category 8)
-        addUnit(8, 900, L"Bytes", L"B");
-        addUnit(8, 901, L"Kilobytes", L"KB");
+        // Data units (category 8) - Reordered to user's specification
+        addUnit(8, 900, L"Bits", L"b");
+        addUnit(8, 899, L"Nibbles", L"Nibble");
+        addUnit(8, 901, L"Bytes", L"B");
+        addUnit(8, 906, L"Kilobits", L"Kb");
+        addUnit(8, 907, L"Kibibits", L"Kib");
+        addUnit(8, 896, L"Kilobytes", L"KB");
+        addUnit(8, 897, L"Kibibytes", L"KiB");
+        addUnit(8, 910, L"Megabits", L"Mb");
+        addUnit(8, 911, L"Mebibits", L"Mib");
         addUnit(8, 902, L"Megabytes", L"MB");
-        addUnit(8, 903, L"Gigabytes", L"GB");
-        addUnit(8, 904, L"Terabytes", L"TB");
-        addUnit(8, 905, L"Petabytes", L"PB");
-        addUnit(8, 906, L"Bits", L"b");
-        addUnit(8, 907, L"Kibibytes", L"KiB");
         addUnit(8, 908, L"Mebibytes", L"MiB");
-        addUnit(8, 909, L"Gibibytes", L"GiB");
+        addUnit(8, 912, L"Gigabits", L"Gb");
+        addUnit(8, 909, L"Gibibits", L"Gib");
+        addUnit(8, 903, L"Gigabytes", L"GB");
+        addUnit(8, 913, L"Gibibytes", L"GiB");
+        addUnit(8, 914, L"Terabits", L"Tb");
+        addUnit(8, 915, L"Tebibits", L"Tib");
+        addUnit(8, 904, L"Terabytes", L"TB");
+        addUnit(8, 916, L"Tebibytes", L"TiB");
+        addUnit(8, 917, L"Petabits", L"Pb");
+        addUnit(8, 918, L"Pebibits", L"Pib");
+        addUnit(8, 905, L"Petabytes", L"PB");
+        addUnit(8, 919, L"Pebibytes", L"PiB");
+        addUnit(8, 920, L"Exabits", L"Eb");
+        addUnit(8, 921, L"Exbibits", L"Eib");
+        addUnit(8, 922, L"Exabytes", L"EB");
+        addUnit(8, 923, L"Exbibytes", L"EiB");
+        addUnit(8, 924, L"Zetabits", L"Zb");
+        addUnit(8, 925, L"Zebibits", L"Zib");
+        addUnit(8, 926, L"Zetabytes", L"ZB");
+        addUnit(8, 927, L"Zebibytes", L"ZiB");
+        addUnit(8, 928, L"Yottabits", L"Yb");
+        addUnit(8, 929, L"Yobibits", L"Yib");
+        addUnit(8, 930, L"Yottabytes", L"YB");
+        addUnit(8, 931, L"Yobibytes", L"YiB");
 
-        addRatio(900, 901, 0.001);
-        addRatio(900, 902, 0.000001);
-        addRatio(900, 903, 1e-9);
-        addRatio(900, 904, 1e-12);
-        addRatio(900, 905, 1e-15);
-        addRatio(900, 906, 8);
-        addRatio(900, 907, 1.0/1024.0);
-        addRatio(900, 908, 1.0/1048576.0);
-        addRatio(900, 909, 1.0/1073741824.0);
+        // Whimsical units (at the end)
+        addUnit(8, 880, L"Floppy disks", L"floppy disk", true);   // Legacy storage
+        addUnit(8, 881, L"CDs", L"CD", true);                     // Optical media
+        addUnit(8, 882, L"DVDs", L"DVD", true);                   // Optical storage
+
+        // Use automatic bidirectional conversion based on factors to Megabytes (base unit for display)
+        // Factors are relative to Megabytes: 1 MB = 1.0, etc.
+        std::vector<std::pair<int, double>> dataFactors;
+        dataFactors.push_back(std::make_pair(900, 0.000000125));  // Bits
+        dataFactors.push_back(std::make_pair(899, 0.0000005));     // Nibbles
+        dataFactors.push_back(std::make_pair(901, 0.000001));      // Bytes
+        dataFactors.push_back(std::make_pair(906, 0.000125));      // Kilobits
+        dataFactors.push_back(std::make_pair(907, 0.000128));      // Kibibits
+        dataFactors.push_back(std::make_pair(896, 0.001));         // Kilobytes
+        dataFactors.push_back(std::make_pair(897, 0.001024));      // Kibibytes
+        dataFactors.push_back(std::make_pair(910, 0.125));         // Megabits
+        dataFactors.push_back(std::make_pair(911, 0.131072));      // Mebibits
+        dataFactors.push_back(std::make_pair(902, 1.0));           // Megabytes (base)
+        dataFactors.push_back(std::make_pair(908, 1.048576));      // Mebibytes
+        dataFactors.push_back(std::make_pair(912, 125.0));         // Gigabits
+        dataFactors.push_back(std::make_pair(909, 134.217728));    // Gibibits
+        dataFactors.push_back(std::make_pair(903, 1000.0));        // Gigabytes
+        dataFactors.push_back(std::make_pair(913, 1073.741824));   // Gibibytes
+        dataFactors.push_back(std::make_pair(914, 125000.0));      // Terabits
+        dataFactors.push_back(std::make_pair(915, 137438.953472)); // Tebibits
+        dataFactors.push_back(std::make_pair(904, 1000000.0));     // Terabytes
+        dataFactors.push_back(std::make_pair(916, 1099511.627776)); // Tebibytes
+        dataFactors.push_back(std::make_pair(917, 125000000.0));   // Petabits
+        dataFactors.push_back(std::make_pair(918, 140737488.355328)); // Pebibits
+        dataFactors.push_back(std::make_pair(905, 1000000000.0));  // Petabytes
+        dataFactors.push_back(std::make_pair(919, 1125899906.842624)); // Pebibytes
+        dataFactors.push_back(std::make_pair(920, 125000000000.0)); // Exabits
+        dataFactors.push_back(std::make_pair(921, 144115188075.855872)); // Exbibits
+        dataFactors.push_back(std::make_pair(922, 1000000000000.0)); // Exabytes
+        dataFactors.push_back(std::make_pair(923, 1152921504606.846976)); // Exbibytes
+        dataFactors.push_back(std::make_pair(924, 125000000000000.0)); // Zetabits
+        dataFactors.push_back(std::make_pair(925, 147573952589676.412928)); // Zebibits
+        dataFactors.push_back(std::make_pair(926, 1000000000000000.0)); // Zetabytes
+        dataFactors.push_back(std::make_pair(927, 1180591620717411.303424)); // Zebibytes
+        dataFactors.push_back(std::make_pair(928, 125000000000000000.0)); // Yottabits
+        dataFactors.push_back(std::make_pair(929, 151115727451828646.838272)); // Yobibits
+        dataFactors.push_back(std::make_pair(930, 1000000000000000000.0)); // Yottabytes
+        dataFactors.push_back(std::make_pair(931, 1208925819614629174.706176)); // Yobibytes
+        dataFactors.push_back(std::make_pair(880, 1.474560));      // Floppy disks (whimsical, 1.44 MB)
+        dataFactors.push_back(std::make_pair(881, 700.0));         // CDs (whimsical, 700 MB)
+        dataFactors.push_back(std::make_pair(882, 4700.0));        // DVDs (whimsical, 4.7 GB)
+        addBidirectionalConversions(8, dataFactors);
     }
 
     void initPressureUnits() {
-        // Pressure units (category 9)
-        addUnit(9, 1000, L"Pascals", L"Pa");
-        addUnit(9, 1001, L"Kilopascals", L"kPa");
-        addUnit(9, 1002, L"Bars", L"bar");
+        // Pressure units (category 9) - Reordered to match source
         addUnit(9, 1003, L"Atmospheres", L"atm");
-        addUnit(9, 1004, L"Pounds per square inch", L"psi");
+        addUnit(9, 1002, L"Bars", L"bar");
+        addUnit(9, 1001, L"Kilopascals", L"kPa");
         addUnit(9, 1005, L"Millimeters of mercury", L"mmHg");
+        addUnit(9, 1000, L"Pascals", L"Pa");
+        addUnit(9, 1004, L"Pounds per square inch", L"psi");
 
-        addRatio(1000, 1001, 0.001);
-        addRatio(1000, 1002, 0.00001);
-        addRatio(1000, 1003, 9.8692e-6);
-        addRatio(1000, 1004, 0.000145038);
-        addRatio(1000, 1005, 0.00750062);
+        // Use automatic bidirectional conversion based on factors to Pascals (base unit)
+        // Factors are relative to Pascals: 1 Pa = 1.0
+        std::vector<std::pair<int, double>> pressureFactors;
+        pressureFactors.push_back(std::make_pair(1003, 101325.0));      // Atmospheres (1 atm = 101325 Pa)
+        pressureFactors.push_back(std::make_pair(1002, 100000.0));      // Bars (1 bar = 100000 Pa)
+        pressureFactors.push_back(std::make_pair(1001, 1000.0));        // Kilopascals (1 kPa = 1000 Pa)
+        pressureFactors.push_back(std::make_pair(1005, 133.322));       // Millimeters of mercury (1 mmHg ≈ 133.322 Pa)
+        pressureFactors.push_back(std::make_pair(1000, 1.0));           // Pascals (base)
+        pressureFactors.push_back(std::make_pair(1004, 6894.757));      // PSI (1 psi ≈ 6894.757 Pa)
+        addBidirectionalConversions(9, pressureFactors);
     }
 
     void initAngleUnits() {
-        // Angle units (category 10)
+        // Angle units (category 10) - Reordered to user's specification
         addUnit(10, 1100, L"Degrees", L"°");
         addUnit(10, 1101, L"Radians", L"rad");
         addUnit(10, 1102, L"Gradians", L"grad");
-        addUnit(10, 1103, L"Turns", L"tr");
 
         addRatio(1100, 1101, 0.0174533);
         addRatio(1100, 1102, 1.11111);
-        addRatio(1100, 1103, 0.00277778);
     }
 
     void initVolumeUnits() {
-        // Volume units (category 11)
-        addUnit(11, 1200, L"Liters", L"L");
+        // Volume units (category 11) - Reordered to user's specification
+        // Metric units first
         addUnit(11, 1201, L"Milliliters", L"mL");
-        addUnit(11, 1202, L"Cubic meters", L"m³");
         addUnit(11, 1203, L"Cubic centimeters", L"cm³");
-        addUnit(11, 1204, L"US gallons", L"gal");
-        addUnit(11, 1205, L"US quarts", L"qt");
-        addUnit(11, 1206, L"US pints", L"pt");
-        addUnit(11, 1207, L"US cups", L"cup");
-        addUnit(11, 1208, L"US fluid ounces", L"fl oz");
-        addUnit(11, 1209, L"US tablespoons", L"tbsp");
-        addUnit(11, 1210, L"US teaspoons", L"tsp");
-        addUnit(11, 1211, L"Imperial gallons", L"imp gal");
-        addUnit(11, 1212, L"Cubic feet", L"ft³");
-        addUnit(11, 1213, L"Cubic inches", L"in³");
-        addUnit(11, 1214, L"Cubic yards", L"yd³");
-        addUnit(11, 1215, L"Imperial fluid ounces", L"imp fl oz");
-        addUnit(11, 1216, L"Imperial pints", L"imp pt");
-        addUnit(11, 1217, L"Imperial quarts", L"imp qt");
-        addUnit(11, 1218, L"Imperial teaspoons", L"imp tsp");   // UK teaspoons
-        addUnit(11, 1219, L"Imperial tablespoons", L"imp tbsp"); // UK tablespoons
+        addUnit(11, 1200, L"Liters", L"L");
+        addUnit(11, 1202, L"Cubic meters", L"m³");
 
-        // Whimsical units (fun units for educational purposes)
-        addUnit(11, 1220, L"Metric cups", L"metric cup", true);       // Same as CoffeeCup in original
+        // US customary units (cooking measures)
+        addUnit(11, 1210, L"Teaspoons (US)", L"tsp");
+        addUnit(11, 1209, L"Tablespoons (US)", L"tbsp");
+        addUnit(11, 1208, L"Fluid ounces (US)", L"fl oz");
+        addUnit(11, 1207, L"Cups (US)", L"cup");
+        addUnit(11, 1206, L"Pints (US)", L"pt");
+        addUnit(11, 1205, L"Quarts (US)", L"qt");
+        addUnit(11, 1204, L"Gallons (US)", L"gal");
+
+        // US customary units (cubic measures)
+        addUnit(11, 1213, L"Cubic inches", L"in³");
+        addUnit(11, 1212, L"Cubic feet", L"ft³");
+        addUnit(11, 1214, L"Cubic yards", L"yd³");
+
+        // UK imperial units
+        addUnit(11, 1216, L"Teaspoons (UK)", L"tsp");
+        addUnit(11, 1217, L"Tablespoons (UK)", L"tbsp");
+        addUnit(11, 1218, L"Fluid ounces (UK)", L"fl oz");
+        addUnit(11, 1219, L"Pints (UK)", L"pt");
+        addUnit(11, 1223, L"Quarts (UK)", L"qt");
+        addUnit(11, 1224, L"Gallons (UK)", L"gal");
+
+        // Whimsical units (at the end)
+        addUnit(11, 1220, L"Coffee cups", L"coffee cup", true);     // Small cooking volume
         addUnit(11, 1221, L"Bathtubs", L"bathtub", true);             // Large volume
         addUnit(11, 1222, L"Swimming pools", L"pool", true);          // Very large volume
 
         // Use automatic bidirectional conversion based on factors to cubic centimeters (base unit)
         // Factors are from original Windows Calculator code (cm³ = 1 as base)
         std::vector<std::pair<int, double>> volumeFactors;
+        volumeFactors.push_back(std::make_pair(1201, 1.0));           // Milliliters (base)
+        volumeFactors.push_back(std::make_pair(1203, 1.0));           // Cubic centimeters
         volumeFactors.push_back(std::make_pair(1200, 1000.0));        // Liters
-        volumeFactors.push_back(std::make_pair(1201, 1.0));           // Milliliters
         volumeFactors.push_back(std::make_pair(1202, 1000000.0));     // Cubic meters
-        volumeFactors.push_back(std::make_pair(1203, 1.0));           // Cubic centimeters (base)
-        volumeFactors.push_back(std::make_pair(1204, 3785.411784));   // US gallons
-        volumeFactors.push_back(std::make_pair(1205, 946.352946));    // US quarts
-        volumeFactors.push_back(std::make_pair(1206, 473.176473));    // US pints
-        volumeFactors.push_back(std::make_pair(1207, 236.588237));    // US cups
-        volumeFactors.push_back(std::make_pair(1208, 29.5735295625)); // US fluid ounces
-        volumeFactors.push_back(std::make_pair(1209, 14.78676478125));// US tablespoons
         volumeFactors.push_back(std::make_pair(1210, 4.92892159375)); // US teaspoons
-        volumeFactors.push_back(std::make_pair(1211, 4546.09));       // Imperial gallons
-        volumeFactors.push_back(std::make_pair(1212, 28316.846592));  // Cubic feet
+        volumeFactors.push_back(std::make_pair(1209, 14.78676478125));// US tablespoons
+        volumeFactors.push_back(std::make_pair(1208, 29.5735295625)); // US fluid ounces
+        volumeFactors.push_back(std::make_pair(1207, 236.588237));    // US cups
+        volumeFactors.push_back(std::make_pair(1206, 473.176473));    // US pints
+        volumeFactors.push_back(std::make_pair(1205, 946.352946));    // US quarts
+        volumeFactors.push_back(std::make_pair(1204, 3785.411784));   // US gallons
         volumeFactors.push_back(std::make_pair(1213, 16.387064));     // Cubic inches
+        volumeFactors.push_back(std::make_pair(1212, 28316.846592));  // Cubic feet
         volumeFactors.push_back(std::make_pair(1214, 764554.857984)); // Cubic yards
-        volumeFactors.push_back(std::make_pair(1215, 28.4130625));    // Imperial fluid ounces
-        volumeFactors.push_back(std::make_pair(1216, 568.26125));     // Imperial pints
-        volumeFactors.push_back(std::make_pair(1217, 1136.5225));     // Imperial quarts
-        volumeFactors.push_back(std::make_pair(1218, 3.5516328125));  // Imperial teaspoons (UK tsp)
-        volumeFactors.push_back(std::make_pair(1219, 17.7581640625)); // Imperial tablespoons (UK tbsp)
-        volumeFactors.push_back(std::make_pair(1220, 236.5882));      // Metric cups (whimsical)
+        volumeFactors.push_back(std::make_pair(1216, 5.91938802083333333333)); // UK teaspoons
+        volumeFactors.push_back(std::make_pair(1217, 17.7581640625)); // UK tablespoons
+        volumeFactors.push_back(std::make_pair(1218, 28.4130625));    // UK fluid ounces
+        volumeFactors.push_back(std::make_pair(1219, 568.26125));     // UK pints
+        volumeFactors.push_back(std::make_pair(1223, 1136.5225));     // UK quarts
+        volumeFactors.push_back(std::make_pair(1224, 4546.09));       // UK gallons
+        volumeFactors.push_back(std::make_pair(1220, 236.5882));      // Coffee cups (whimsical)
         volumeFactors.push_back(std::make_pair(1221, 378541.2));      // Bathtubs (whimsical)
         volumeFactors.push_back(std::make_pair(1222, 3750000000.0));  // Swimming pools (whimsical)
         addBidirectionalConversions(11, volumeFactors);

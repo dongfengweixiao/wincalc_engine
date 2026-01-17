@@ -1,6 +1,6 @@
 name: wincalc_engine
 description: Dart FFI bindings to the Windows Calculator engine, providing standard, scientific, and programmer calculator functionality.
-version: 0.0.6
+version: 0.0.7
 homepage: https://github.com/dongfengweixiao/wincalc_engine
 repository: https://github.com/dongfengweixiao/wincalc_engine
 issue_tracker: https://github.com/dongfengweixiao/wincalc_engine/issues

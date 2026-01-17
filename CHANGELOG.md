@@ -1,3 +1,38 @@
+## 0.0.7
+
+### Changed
+
+- **Unit Converter Reorganization**
+  - Reordered all units to follow logical progression (smallest to largest)
+  - Metric units now grouped together before imperial/customary units
+  - Consistent ordering across all 12 unit categories
+  - All conversions now use automatic bidirectional conversion based on base unit factors
+
+- **Enhanced Unit Coverage**
+  - **Data Units**: Expanded to include complete range of bit/byte prefixes
+    - All decimal prefixes: kilo, mega, giga, tera, peta, exa, zetta, yotta
+    - All binary prefixes: kibi, mebi, gibi, tebi, pebi, exbi, zebi, yobi
+    - Added: Bits, Nibbles, and all byte variants (KiB, MiB, GiB, TiB, PiB, EiB, ZiB, YiB)
+  - **Length**: Added Angstroms, Nautical miles
+  - **Weight**: Added Carats, Centigrams, Decigrams, Decagrams, Hectograms, Short tons
+  - **Energy**: Added Foot-pounds
+  - **Speed**: Added Centimeters per second
+
+- **Whimsical Units** (Educational/fun units at end of each category)
+  - **Length**: Paperclips, Hands, Jumbo jets
+  - **Weight**: Snowflakes, Soccer balls, Elephants, Whales
+  - **Energy**: Batteries, Bananas, Slices of cake
+  - **Area**: Hands, Papers, Soccer fields, Castles, Pyeong (Korean/Japanese floor area)
+  - **Speed**: Turtles, Horses, Jets
+  - **Power**: Light bulbs, Horses, Train engines
+  - **Data**: Floppy disks, CDs, DVDs
+  - **Volume**: Coffee cups, Bathtubs, Swimming pools
+
+- **Improved Accuracy**
+  - More precise conversion factors (e.g., US Horsepower vs Metric Horsepower)
+  - Properly grouped US and UK cooking measures (teaspoons, tablespoons, etc.)
+  - Better unit naming (e.g., "Gallons (US)" vs "Gallons (UK)")
+
 ## 0.0.6
 
 ### Fixed
