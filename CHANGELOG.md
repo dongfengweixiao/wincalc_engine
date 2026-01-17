@@ -1,3 +1,13 @@
+## 0.0.5
+
+### Fixed
+
+- **Temperature Unit Identity Conversion Bug**
+  - Added missing identity conversions for temperature units (Celsius→Celsius, Fahrenheit→Fahrenheit, Kelvin→Kelvin)
+  - Previously, converting between the same temperature unit would produce incorrect results (e.g., 25°C → 0.015534 instead of 25°C)
+  - Now correctly returns the same value when source and target units are identical
+  - Example: 100°C now correctly converts to 100°C, 77°F to 77°F, 298K to 298K
+
 ## 0.0.4
 
 ### Added

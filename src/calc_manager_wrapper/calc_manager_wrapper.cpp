@@ -1111,10 +1111,13 @@ private:
         addUnit(2, 302, L"Kelvin", L"K");
 
         // Temperature conversions are special (offset-based)
+        addRatio(300, 300, 1.0, 0.0, false);  // C to C: C = C * 1.0 + 0.0
         addRatio(300, 301, 1.8, 32.0, false);    // C to F: F = C * 1.8 + 32
         addRatio(300, 302, 1.0, 273.15, false);  // C to K: K = C + 273.15
         addRatio(301, 300, 1.0/1.8, -32.0/1.8, true); // F to C: C = (F - 32) / 1.8
+        addRatio(301, 301, 1.0, 0.0, false);  // F to F: F = F * 1.0 + 0.0
         addRatio(302, 300, 1.0, -273.15, false); // K to C: C = K - 273.15
+        addRatio(302, 302, 1.0, 0.0, false);  // K to K: K = K * 1.0 + 0.0        
     }
 
     void initEnergyUnits() {
