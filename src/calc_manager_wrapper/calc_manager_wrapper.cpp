@@ -1116,8 +1116,10 @@ private:
         addRatio(300, 302, 1.0, 273.15, false);  // C to K: K = C + 273.15
         addRatio(301, 300, 1.0/1.8, -32.0/1.8, true); // F to C: C = (F - 32) / 1.8
         addRatio(301, 301, 1.0, 0.0, false);  // F to F: F = F * 1.0 + 0.0
+        addRatio(301, 302, 0.55555555555555555555555555555556, 459.67, true); // F to K: K = (F + 459.67) / 1.8
         addRatio(302, 300, 1.0, -273.15, false); // K to C: C = K - 273.15
-        addRatio(302, 302, 1.0, 0.0, false);  // K to K: K = K * 1.0 + 0.0        
+        addRatio(302, 301, 1.8, -459.67, false); // K to F: F = K * 1.8 - 459.67
+        addRatio(302, 302, 1.0, 0.0, false);  // K to K: K = K * 1.0 + 0.0
     }
 
     void initEnergyUnits() {

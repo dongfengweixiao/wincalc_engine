@@ -1,3 +1,13 @@
+## 0.0.6
+
+### Fixed
+
+- **Missing Temperature Unit Conversions**
+  - Added Fahrenheit to Kelvin conversion (F → K): K = (F + 459.67) / 1.8
+  - Added Kelvin to Fahrenheit conversion (K → F): F = K × 1.8 - 459.67
+  - Previously, these conversions would fail or return incorrect results
+  - Now all 9 possible temperature conversion directions are supported (3 units × 3 units)
+
 ## 0.0.5
 
 ### Fixed
