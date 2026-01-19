@@ -32,20 +32,22 @@ static std::string wstring_to_utf8(const std::wstring& wstr) {
     result.reserve(wstr.size() * 3);
 
     for (wchar_t wc : wstr) {
-        if (wc <= 0x7F) {
-            result.push_back(static_cast<char>(wc));
-        } else if (wc <= 0x7FF) {
-            result.push_back(static_cast<char>(0xC0 | ((wc >> 6) & 0x1F)));
-            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
-        } else if (wc <= 0xFFFF) {
-            result.push_back(static_cast<char>(0xE0 | ((wc >> 12) & 0x0F)));
-            result.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
-            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
-        } else {
-            result.push_back(static_cast<char>(0xF0 | ((wc >> 18) & 0x07)));
-            result.push_back(static_cast<char>(0x80 | ((wc >> 12) & 0x3F)));
-            result.push_back(static_cast<char>(0x80 | ((wc >> 6) & 0x3F)));
-            result.push_back(static_cast<char>(0x80 | (wc & 0x3F)));
+        // Promote to int to avoid shift warnings on Windows where wchar_t is 16-bit
+        unsigned int code_point = static_cast<unsigned int>(wc);
+        if (code_point <= 0x7F) {
+            result.push_back(static_cast<char>(code_point));
+        } else if (code_point <= 0x7FF) {
+            result.push_back(static_cast<char>(0xC0 | ((code_point >> 6) & 0x1F)));
+            result.push_back(static_cast<char>(0x80 | (code_point & 0x3F)));
+        } else if (code_point <= 0xFFFF) {
+            result.push_back(static_cast<char>(0xE0 | ((code_point >> 12) & 0x0F)));
+            result.push_back(static_cast<char>(0x80 | ((code_point >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (code_point & 0x3F)));
+         } else {
+            result.push_back(static_cast<char>(0xF0 | ((code_point >> 18) & 0x07)));
+            result.push_back(static_cast<char>(0x80 | ((code_point >> 12) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | ((code_point >> 6) & 0x3F)));
+            result.push_back(static_cast<char>(0x80 | (code_point & 0x3F)));
         }
     }
     return result;
@@ -368,6 +370,15 @@ void calculator_send_command(CalculatorInstance* instance, CalculatorCommand com
         case CMD_BYTE:
             instance->currentWordType = CALC_WORD_BYTE;
             break;
+        case CMD_DEG:
+            instance->currentAngleType = CALC_ANGLE_DEGREES;
+            break;
+        case CMD_RAD:
+            instance->currentAngleType = CALC_ANGLE_RADIANS;
+            break;
+        case CMD_GRAD:
+            instance->currentAngleType = CALC_ANGLE_GRADIANS;
+            break;
         default:
             break;
     }
@@ -510,8 +521,15 @@ void calculator_set_word_width(CalculatorInstance* instance, CalcWordType word_t
 }
 
 int calculator_get_word_width(CalculatorInstance* instance) {
-    if (instance) {
-        return static_cast<int>(instance->currentWordType);
+    if (instance && instance->manager) {
+        auto numwidth = instance->manager->GetCurrentNumWidth();
+        switch (numwidth) {
+            case NUM_WIDTH::QWORD_WIDTH: return CALC_WORD_QWORD;
+            case NUM_WIDTH::DWORD_WIDTH: return CALC_WORD_DWORD;
+            case NUM_WIDTH::WORD_WIDTH:  return CALC_WORD_WORD;
+            case NUM_WIDTH::BYTE_WIDTH:  return CALC_WORD_BYTE;
+            default:                     return CALC_WORD_QWORD;
+        }
     }
     return CALC_WORD_QWORD;
 }
@@ -553,8 +571,14 @@ void calculator_set_angle_type(CalculatorInstance* instance, CalcAngleType angle
 }
 
 int calculator_get_angle_type(CalculatorInstance* instance) {
-    if (instance) {
-        return instance->currentAngleType;
+    if (instance && instance->manager) {
+        auto mode = instance->manager->GetCurrentDegreeMode();
+        switch (mode) {
+            case CalculationManager::Command::CommandDEG:  return CALC_ANGLE_DEGREES;
+            case CalculationManager::Command::CommandRAD:  return CALC_ANGLE_RADIANS;
+            case CalculationManager::Command::CommandGRAD: return CALC_ANGLE_GRADIANS;
+            default:                                       return CALC_ANGLE_DEGREES;
+        }
     }
     return CALC_ANGLE_DEGREES;
 }

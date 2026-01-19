@@ -1,3 +1,4 @@
+import 'package:code_assets/code_assets.dart';
 import 'package:hooks/hooks.dart';
 import 'package:native_toolchain_c/native_toolchain_c.dart';
 
@@ -5,16 +6,26 @@ const String libcalcManagerPath = 'src/calculator/src/CalcManager';
 
 void main(List<String> args) async {
   await build(args, (input, output) async {
+    final targetOS = input.config.code.targetOS;
+    final flags = <String>[];
+    if (targetOS == OS.android) {
+      // 16KB page size alignment for Android 15 compatibility
+      flags.add('-Wl,-z,max-page-size=16384');
+    }
+    if (targetOS == OS.windows) {
+      flags.add('/EHsc');
+    }
     // Combine calc_manager and wrapper into a single library to avoid linking issues
     final builder = CBuilder.library(
       name: 'calc_manager_wrapper',
       assetName: 'wincalc_engine.dart',
       language: Language.cpp,
       std: 'c++17',
-      forcedIncludes: ['src/include/pch.h'],
+      forcedIncludes: ['$libcalcManagerPath/pch.h'],
       defines: {
         'CALC_MANAGER_EXPORTS': null, // Enable DLL exports on Windows
       },
+      flags: flags,
       sources: [
         // CalcManager sources
         '$libcalcManagerPath/CEngine/calc.cpp',
@@ -51,11 +62,9 @@ void main(List<String> args) async {
         'src/calc_manager_wrapper/calc_manager_wrapper.cpp',
       ],
       includes: [
-        'src/include',
         libcalcManagerPath,
         '$libcalcManagerPath/Header Files',
         '$libcalcManagerPath/Ratpack',
-        '$libcalcManagerPath/Ratpack/..', // Add parent directory for Ratpack files
       ],
     );
 

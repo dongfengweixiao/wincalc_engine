@@ -1,3 +1,29 @@
+## 0.0.8
+
+### Changed
+
+- **Calculator Submodule Update**
+  - Updated to forked repository: `dongfengweixiao/ms_calculator` @ `wincalc_engine` branch
+  - Commit: `210b355` - Includes compiler warning fixes and cross-platform improvements
+  - Removes dependency on Microsoft's upstream calculator repository
+
+- **Build Configuration Improvements**
+  - Removed custom `src/include` directory (Windows compatibility headers no longer needed)
+  - Now uses calculator submodule's built-in precompiled header (`pch.h`)
+  - Added Android 15 compatibility support with 16KB page size alignment (`-Wl,-z,max-page-size=16384`)
+  - Added Windows C++ exception handling flag (`/EHsc`)
+  - Cleaner include paths, removed unnecessary parent directory references
+
+- **Code Quality Enhancements**
+  - Fixed UTF-8 conversion warning in `wstring_to_utf8()` by promoting `wchar_t` to `unsigned int` before bit shifting
+  - This prevents compiler warning C4333 ("right shift count too large") on Windows where `wchar_t` is 16-bit
+
+- **State Synchronization Improvements**
+  - Enhanced `calculator_send_command()` to track angle type changes (DEG/RAD/GRAD commands)
+  - Improved `calculator_get_word_width()` to query actual state from calculator engine instead of cached value
+  - Improved `calculator_get_angle_type()` to query actual state from calculator engine instead of cached value
+  - More reliable state tracking across different calculator operations
+
 ## 0.0.7
 
 ### Changed
