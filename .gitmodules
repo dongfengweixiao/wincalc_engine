@@ -1,3 +1,4 @@
 [submodule "src/calculator"]
 	path = src/calculator
-	url = https://github.com/microsoft/calculator.git
+	url = https://github.com/dongfengweixiao/ms_calculator.git
+	branch = wincalc_engine
