@@ -1,64 +1,7 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
 import 'package:test/test.dart';
 import 'package:wincalc_engine/wincalc_engine.dart';
-
-/// Helper function to get string result from native buffer
-String getDisplayResult(Pointer<CalculatorInstance> instance) {
-  const bufferSize = 256;
-  final buffer = calloc<Char>(bufferSize);
-  try {
-    calculator_get_primary_display(instance, buffer, bufferSize);
-    return buffer.cast<Utf8>().toDartString();
-  } finally {
-    calloc.free(buffer);
-  }
-}
-
-/// Helper function to get expression string
-String getExpression(Pointer<CalculatorInstance> instance) {
-  const bufferSize = 256;
-  final buffer = calloc<Char>(bufferSize);
-  try {
-    calculator_get_expression(instance, buffer, bufferSize);
-    return buffer.cast<Utf8>().toDartString();
-  } finally {
-    calloc.free(buffer);
-  }
-}
-
-/// Helper function to send a digit command
-void sendDigit(Pointer<CalculatorInstance> instance, int digit) {
-  final command = switch (digit) {
-    0 => CMD_0,
-    1 => CMD_1,
-    2 => CMD_2,
-    3 => CMD_3,
-    4 => CMD_4,
-    5 => CMD_5,
-    6 => CMD_6,
-    7 => CMD_7,
-    8 => CMD_8,
-    9 => CMD_9,
-    _ => throw ArgumentError('Invalid digit: $digit'),
-  };
-  calculator_send_command(instance, command);
-}
-
-/// Helper function to send a number as individual digits
-void sendNumber(Pointer<CalculatorInstance> instance, num number) {
-  final str = number.toString();
-  for (int i = 0; i < str.length; i++) {
-    final char = str[i];
-    if (char == '.') {
-      calculator_send_command(instance, CMD_DECIMAL);
-    } else if (char == '-') {
-      calculator_send_command(instance, CMD_NEGATE);
-    } else {
-      sendDigit(instance, int.parse(char));
-    }
-  }
-}
+import 'test_helpers.dart';
 
 void main() {
   late Pointer<CalculatorInstance> calc;

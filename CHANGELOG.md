@@ -1,3 +1,12 @@
+## 0.0.9
+
+### Added
+
+- **Bit Position Command Helper Function**
+  - Added `calc_cmd_binpos(int n)` FFI function for bit position toggle commands
+  - Provides Dart-accessible function for `CMD_BINPOS(n)` macro (ffigen cannot handle C macro functions)
+  - Simplifies bit manipulation operations in programmer mode from Dart code
+
 ## 0.0.8
 
 ### Changed

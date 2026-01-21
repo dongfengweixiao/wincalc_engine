@@ -1,127 +1,7 @@
 import 'dart:ffi';
-import 'package:ffi/ffi.dart';
 import 'package:test/test.dart';
 import 'package:wincalc_engine/wincalc_engine.dart';
-
-/// Helper function to get string result from native buffer
-String getDisplayResult(Pointer<CalculatorInstance> instance) {
-  const bufferSize = 256;
-  final buffer = calloc<Char>(bufferSize);
-  try {
-    calculator_get_primary_display(instance, buffer, bufferSize);
-    return buffer.cast<Utf8>().toDartString();
-  } finally {
-    calloc.free(buffer);
-  }
-}
-
-/// Helper function to get result in specific radix
-String getResultInRadix(Pointer<CalculatorInstance> instance, int radix) {
-  const bufferSize = 256;
-  final buffer = calloc<Char>(bufferSize);
-  try {
-    switch (radix) {
-      case 16:
-        calculator_get_result_hex(instance, buffer, bufferSize);
-        break;
-      case 10:
-        calculator_get_result_dec(instance, buffer, bufferSize);
-        break;
-      case 8:
-        calculator_get_result_oct(instance, buffer, bufferSize);
-        break;
-      case 2:
-        calculator_get_result_bin(instance, buffer, bufferSize);
-        break;
-      default:
-        throw ArgumentError('Invalid radix: $radix');
-    }
-    return buffer.cast<Utf8>().toDartString();
-  } finally {
-    calloc.free(buffer);
-  }
-}
-
-/// Helper function to get binary display (64-bit)
-String getBinaryDisplay(Pointer<CalculatorInstance> instance) {
-  const bufferSize = 65;
-  final buffer = calloc<Char>(bufferSize);
-  try {
-    calculator_get_binary_display(instance, buffer, bufferSize);
-    return buffer.cast<Utf8>().toDartString();
-  } finally {
-    calloc.free(buffer);
-  }
-}
-
-/// Helper function to send a digit command
-void sendDigit(Pointer<CalculatorInstance> instance, int digit) {
-  final command = switch (digit) {
-    0 => CMD_0,
-    1 => CMD_1,
-    2 => CMD_2,
-    3 => CMD_3,
-    4 => CMD_4,
-    5 => CMD_5,
-    6 => CMD_6,
-    7 => CMD_7,
-    8 => CMD_8,
-    9 => CMD_9,
-    _ => throw ArgumentError('Invalid digit: $digit'),
-  };
-  calculator_send_command(instance, command);
-}
-
-/// Helper function to send a number as individual digits
-void sendNumber(Pointer<CalculatorInstance> instance, num number) {
-  final str = number.toString();
-  for (int i = 0; i < str.length; i++) {
-    final char = str[i];
-    if (char == '.') {
-      calculator_send_command(instance, CMD_DECIMAL);
-    } else if (char == '-') {
-      calculator_send_command(instance, CMD_NEGATE);
-    } else {
-      sendDigit(instance, int.parse(char));
-    }
-  }
-}
-
-/// Helper function to send a hex digit (0-F)
-void sendHexDigit(Pointer<CalculatorInstance> instance, int digit) {
-  final command = switch (digit) {
-    0 => CMD_0,
-    1 => CMD_1,
-    2 => CMD_2,
-    3 => CMD_3,
-    4 => CMD_4,
-    5 => CMD_5,
-    6 => CMD_6,
-    7 => CMD_7,
-    8 => CMD_8,
-    9 => CMD_9,
-    10 => CMD_A,
-    11 => CMD_B,
-    12 => CMD_C,
-    13 => CMD_D,
-    14 => CMD_E,
-    15 => CMD_F,
-    _ => throw ArgumentError('Invalid hex digit: $digit'),
-  };
-  calculator_send_command(instance, command);
-}
-
-/// Helper function to send a hex number
-void sendHexNumber(Pointer<CalculatorInstance> instance, int number) {
-  final hexStr = number.toRadixString(16).toUpperCase();
-  for (int i = 0; i < hexStr.length; i++) {
-    final digit = int.parse(hexStr[i], radix: 16);
-    sendHexDigit(instance, digit);
-  }
-}
-
-/// Helper function to calculate CMD_BINPOS value
-int CMD_BINPOS(int n) => 700 + n;
+import 'test_helpers.dart';
 
 void main() {
   late Pointer<CalculatorInstance> calc;
@@ -513,6 +393,77 @@ void main() {
 
       final result = getDisplayResult(calc);
       expect(result, equals('13')); // 1 + 4 + 8 = 13
+    });
+
+    test('bit flip sequence in hexadecimal mode', () {
+      // Set to hexadecimal mode
+      calculator_set_radix(calc, CalcRadixType.CALC_RADIX_HEX);
+
+      // Start from 0
+      sendNumber(calc, 0);
+
+      // Toggle bit0 to 1: display should be 1
+      calculator_send_command(calc, CMD_BINPOS(0));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('1'),
+          reason: 'After toggling bit0 to 1, should display 1');
+
+      // Toggle bit1 to 1: display should be 3 (binary: 0011)
+      calculator_send_command(calc, CMD_BINPOS(1));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('3'),
+          reason: 'After toggling bit1 to 1, should display 3 (1+2)');
+
+      // Toggle bit2 to 1: display should be 7 (binary: 0111)
+      calculator_send_command(calc, CMD_BINPOS(2));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('7'),
+          reason: 'After toggling bit2 to 1, should display 7 (1+2+4)');
+
+      // Toggle bit3 to 1: display should be F (binary: 1111)
+      calculator_send_command(calc, CMD_BINPOS(3));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('F'),
+          reason: 'After toggling bit3 to 1, should display F (1+2+4+8)');
+
+      // Toggle bit0 to 0: display should be E (binary: 1110)
+      calculator_send_command(calc, CMD_BINPOS(0));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('E'),
+          reason: 'After toggling bit0 to 0, should display E (2+4+8)');
+    });
+
+    test('bit flip with binary display verification', () {
+      // Set to hexadecimal mode
+      calculator_set_radix(calc, CalcRadixType.CALC_RADIX_HEX);
+
+      // Start from 0
+      sendNumber(calc, 0);
+
+      // Toggle bit0 to 1
+      calculator_send_command(calc, CMD_BINPOS(0));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('1'));
+      var binary = getBinaryDisplay(calc);
+      expect(binary.substring(63), equals('1'), reason: 'bit0 should be 1');
+
+      // Toggle bit1 to 1
+      calculator_send_command(calc, CMD_BINPOS(1));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('3'));
+      binary = getBinaryDisplay(calc);
+      expect(binary.substring(62), equals('11'), reason: 'bits 1-0 should be 11');
+
+      // Toggle bit2 to 1
+      calculator_send_command(calc, CMD_BINPOS(2));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('7'));
+      binary = getBinaryDisplay(calc);
+      expect(binary.substring(61), equals('111'), reason: 'bits 2-0 should be 111');
+
+      // Toggle bit3 to 1
+      calculator_send_command(calc, CMD_BINPOS(3));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('F'));
+      binary = getBinaryDisplay(calc);
+      expect(binary.substring(60), equals('1111'), reason: 'bits 3-0 should be 1111');
+
+      // Toggle bit0 to 0 (flip back)
+      calculator_send_command(calc, CMD_BINPOS(0));
+      expect(getResultInRadix(calc, 16).toUpperCase(), equals('E'));
+      binary = getBinaryDisplay(calc);
+      expect(binary.substring(60), equals('1110'), reason: 'bits 3-0 should be 1110');
     });
   });
 

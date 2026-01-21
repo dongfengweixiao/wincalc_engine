@@ -1843,3 +1843,11 @@ int unit_converter_get_suggested_value(UnitConverterInstance* instance, int inde
     // Return unit ID on success (>= 0)
     return unit.id;
 }
+
+// ============================================================================
+// Bit Position Toggle Command Helper
+// ============================================================================
+
+CalculatorCommand calc_cmd_binpos(int n) {
+    return static_cast<CalculatorCommand>(700 + n);
+}

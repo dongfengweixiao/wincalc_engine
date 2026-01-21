@@ -4,6 +4,10 @@
 // ignore_for_file: type=lint, unused_import
 import 'dart:ffi' as ffi;
 
+/// Function for FFI binding (ffigen can't handle macro functions)
+@ffi.Native<CalculatorCommand Function(ffi.Int)>()
+external int calc_cmd_binpos(int n);
+
 /// Lifecycle
 @ffi.Native<ffi.Pointer<CalculatorInstance> Function()>()
 external ffi.Pointer<CalculatorInstance> calculator_create();

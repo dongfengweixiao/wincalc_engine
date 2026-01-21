@@ -219,6 +219,9 @@ typedef struct UnitConverterInstance UnitConverterInstance;
 
 #define CMD_BINPOS(n) ((CalculatorCommand)(700 + (n)))  // Toggle bit at position n (0-63)
 
+// Function for FFI binding (ffigen can't handle macro functions)
+CALC_API CalculatorCommand calc_cmd_binpos(int n);
+
 // ============================================================================
 // Enumerations
 // ============================================================================
