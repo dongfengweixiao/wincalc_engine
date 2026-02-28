@@ -234,8 +234,10 @@ public:
     }
 };
 
+struct CalculatorInstance;
+
 // ============================================================================
-// Calculator Display Implementation
+// Calculator Display Implementation with Callbacks
 // ============================================================================
 
 class CalcDisplayImpl : public ICalcDisplay {
@@ -246,42 +248,23 @@ public:
     unsigned int parenthesisCount = 0;
     std::vector<std::wstring> memorizedNumbers;
 
-    void SetPrimaryDisplay(const std::wstring& displayString, bool isError) override {
-        primaryDisplay = displayString;
-        hasError = isError;
-    }
+    // Callback pointers and user data
+    CalculatorInstance* parentInstance = nullptr;
 
-    void SetIsInError(bool isInError) override {
-        hasError = isInError;
-    }
-
+    // Method declarations - implementations are after CalculatorInstance definition
+    void SetPrimaryDisplay(const std::wstring& displayString, bool isError) override;
+    void SetIsInError(bool isInError) override;
     void SetExpressionDisplay(
         _Inout_ std::shared_ptr<std::vector<std::pair<std::wstring, int>>> const& tokens,
-        _Inout_ std::shared_ptr<std::vector<std::shared_ptr<IExpressionCommand>>> const& /*commands*/) override {
-        expression.clear();
-        if (tokens) {
-            for (const auto& token : *tokens) {
-                expression += token.first;
-                expression += L" ";
-            }
-        }
-    }
-
-    void SetParenthesisNumber(unsigned int count) override {
-        parenthesisCount = count;
-    }
-
-    void OnNoRightParenAdded() override {}
-    void MaxDigitsReached() override {}
-    void BinaryOperatorReceived() override {}
-    void OnHistoryItemAdded(unsigned int /*addedItemIndex*/) override {}
-
-    void SetMemorizedNumbers(const std::vector<std::wstring>& memorizedNums) override {
-        memorizedNumbers = memorizedNums;
-    }
-
-    void MemoryItemChanged(unsigned int /*indexOfMemory*/) override {}
-    void InputChanged() override {}
+        _Inout_ std::shared_ptr<std::vector<std::shared_ptr<IExpressionCommand>>> const& commands) override;
+    void SetParenthesisNumber(unsigned int count) override;
+    void OnNoRightParenAdded() override;
+    void MaxDigitsReached() override;
+    void BinaryOperatorReceived() override;
+    void OnHistoryItemAdded(unsigned int addedItemIndex) override;
+    void SetMemorizedNumbers(const std::vector<std::wstring>& memorizedNums) override;
+    void MemoryItemChanged(unsigned int indexOfMemory) override;
+    void InputChanged() override;
 };
 
 // ============================================================================
@@ -298,7 +281,121 @@ struct CalculatorInstance {
     CalcWordType currentWordType = CALC_WORD_QWORD;
     uint64_t carryFlag = 0;
     bool isInHistoryLoadMode = false;  // Track history item load mode
+
+    // Callback user data
+    void* callbackUserData = nullptr;
+
+    // ICalcDisplay callbacks
+    CalcDisplaySetPrimaryDisplayCallback onSetPrimaryDisplay = nullptr;
+    CalcDisplaySetIsInErrorCallback onSetIsInError = nullptr;
+    CalcDisplaySetExpressionCallback onSetExpression = nullptr;
+    CalcDisplaySetParenthesisCallback onSetParenthesis = nullptr;
+    CalcDisplayOnNoRightParenAddedCallback onNoRightParenAdded = nullptr;
+    CalcDisplayMaxDigitsReachedCallback onMaxDigitsReached = nullptr;
+    CalcDisplayBinaryOperatorReceivedCallback onBinaryOperatorReceived = nullptr;
+    CalcDisplayOnHistoryItemAddedCallback onHistoryItemAdded = nullptr;
+    CalcDisplaySetMemorizedNumbersCallback onSetMemorizedNumbers = nullptr;
+    CalcDisplayMemoryItemChangedCallback onMemoryItemChanged = nullptr;
+    CalcDisplayInputChangedCallback onInputChanged = nullptr;
 };
+
+void CalcDisplayImpl::SetPrimaryDisplay(const std::wstring& displayString, bool isError) {
+    primaryDisplay = displayString;
+    hasError = isError;
+
+    // Invoke callback if registered
+    if (parentInstance && parentInstance->onSetPrimaryDisplay) {
+        std::string utf8 = wstring_to_utf8(displayString);
+        parentInstance->onSetPrimaryDisplay(utf8.c_str(), isError ? 1 : 0, parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::SetIsInError(bool isInError) {
+    hasError = isInError;
+
+    // Invoke callback if registered
+    if (parentInstance && parentInstance->onSetIsInError) {
+        parentInstance->onSetIsInError(isInError ? 1 : 0, parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::SetExpressionDisplay(
+    _Inout_ std::shared_ptr<std::vector<std::pair<std::wstring, int>>> const& tokens,
+    _Inout_ std::shared_ptr<std::vector<std::shared_ptr<IExpressionCommand>>> const& /*commands*/) {
+    expression.clear();
+    if (tokens) {
+        for (const auto& token : *tokens) {
+            expression += token.first;
+            expression += L" ";
+        }
+    }
+
+    // Invoke callback if registered
+    if (parentInstance && parentInstance->onSetExpression) {
+        std::string utf8 = wstring_to_utf8(expression);
+        parentInstance->onSetExpression(utf8.c_str(), parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::SetParenthesisNumber(unsigned int count) {
+    parenthesisCount = count;
+
+    // Invoke callback if registered
+    if (parentInstance && parentInstance->onSetParenthesis) {
+        parentInstance->onSetParenthesis(count, parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::OnNoRightParenAdded() {
+    if (parentInstance && parentInstance->onNoRightParenAdded) {
+        parentInstance->onNoRightParenAdded(parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::MaxDigitsReached() {
+    if (parentInstance && parentInstance->onMaxDigitsReached) {
+        parentInstance->onMaxDigitsReached(parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::BinaryOperatorReceived() {
+    if (parentInstance && parentInstance->onBinaryOperatorReceived) {
+        parentInstance->onBinaryOperatorReceived(parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::OnHistoryItemAdded(unsigned int addedItemIndex) {
+    if (parentInstance && parentInstance->onHistoryItemAdded) {
+        parentInstance->onHistoryItemAdded(addedItemIndex, parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::SetMemorizedNumbers(const std::vector<std::wstring>& memorizedNums) {
+    memorizedNumbers = memorizedNums;
+
+    // Invoke callback if registered (send as JSON array)
+    if (parentInstance && parentInstance->onSetMemorizedNumbers) {
+        std::string json = "[";
+        for (size_t i = 0; i < memorizedNums.size(); i++) {
+            if (i > 0) json += ",";
+            json += "\"" + wstring_to_utf8(memorizedNums[i]) + "\"";
+        }
+        json += "]";
+        parentInstance->onSetMemorizedNumbers(json.c_str(), parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::MemoryItemChanged(unsigned int indexOfMemory) {
+    if (parentInstance && parentInstance->onMemoryItemChanged) {
+        parentInstance->onMemoryItemChanged(indexOfMemory, parentInstance->callbackUserData);
+    }
+}
+
+void CalcDisplayImpl::InputChanged() {
+    if (parentInstance && parentInstance->onInputChanged) {
+        parentInstance->onInputChanged(parentInstance->callbackUserData);
+    }
+}
 
 // ============================================================================
 // Calculator Instance Functions Implementation
@@ -308,6 +405,7 @@ CalculatorInstance* calculator_create(void) {
     auto instance = new CalculatorInstance();
     instance->resourceProvider = std::make_unique<ResourceProviderImpl>();
     instance->display = std::make_unique<CalcDisplayImpl>();
+    instance->display->parentInstance = instance;  // Set parent pointer for callbacks
     instance->manager = std::make_unique<CalculationManager::CalculatorManager>(
         instance->display.get(), instance->resourceProvider.get());
     instance->manager->SetStandardMode();
@@ -1850,4 +1948,96 @@ int unit_converter_get_suggested_value(UnitConverterInstance* instance, int inde
 
 CalculatorCommand calc_cmd_binpos(int n) {
     return static_cast<CalculatorCommand>(700 + n);
+}
+
+// ============================================================================
+// ICalcDisplay Callback Registration Functions
+// ============================================================================
+
+void calculator_set_callback_user_data(CalculatorInstance* instance, void* user_data) {
+    if (instance) {
+        instance->callbackUserData = user_data;
+    }
+}
+
+void calculator_set_primary_display_callback(CalculatorInstance* instance, CalcDisplaySetPrimaryDisplayCallback callback) {
+    if (instance) {
+        instance->onSetPrimaryDisplay = callback;
+    }
+}
+
+void calculator_set_is_in_error_callback(CalculatorInstance* instance, CalcDisplaySetIsInErrorCallback callback) {
+    if (instance) {
+        instance->onSetIsInError = callback;
+    }
+}
+
+void calculator_set_expression_callback(CalculatorInstance* instance, CalcDisplaySetExpressionCallback callback) {
+    if (instance) {
+        instance->onSetExpression = callback;
+    }
+}
+
+void calculator_set_parenthesis_callback(CalculatorInstance* instance, CalcDisplaySetParenthesisCallback callback) {
+    if (instance) {
+        instance->onSetParenthesis = callback;
+    }
+}
+
+void calculator_set_no_right_paren_callback(CalculatorInstance* instance, CalcDisplayOnNoRightParenAddedCallback callback) {
+    if (instance) {
+        instance->onNoRightParenAdded = callback;
+    }
+}
+
+void calculator_set_max_digits_callback(CalculatorInstance* instance, CalcDisplayMaxDigitsReachedCallback callback) {
+    if (instance) {
+        instance->onMaxDigitsReached = callback;
+    }
+}
+
+void calculator_set_binary_operator_callback(CalculatorInstance* instance, CalcDisplayBinaryOperatorReceivedCallback callback) {
+    if (instance) {
+        instance->onBinaryOperatorReceived = callback;
+    }
+}
+
+void calculator_set_history_item_added_callback(CalculatorInstance* instance, CalcDisplayOnHistoryItemAddedCallback callback) {
+    if (instance) {
+        instance->onHistoryItemAdded = callback;
+    }
+}
+
+void calculator_set_memorized_numbers_callback(CalculatorInstance* instance, CalcDisplaySetMemorizedNumbersCallback callback) {
+    if (instance) {
+        instance->onSetMemorizedNumbers = callback;
+    }
+}
+
+void calculator_set_memory_item_changed_callback(CalculatorInstance* instance, CalcDisplayMemoryItemChangedCallback callback) {
+    if (instance) {
+        instance->onMemoryItemChanged = callback;
+    }
+}
+
+void calculator_set_input_changed_callback(CalculatorInstance* instance, CalcDisplayInputChangedCallback callback) {
+    if (instance) {
+        instance->onInputChanged = callback;
+    }
+}
+
+void calculator_set_all_callbacks(CalculatorInstance* instance, const CalcDisplayCallbacks* callbacks) {
+    if (!instance || !callbacks) return;
+
+    instance->onSetPrimaryDisplay = callbacks->onSetPrimaryDisplay;
+    instance->onSetIsInError = callbacks->onSetIsInError;
+    instance->onSetExpression = callbacks->onSetExpression;
+    instance->onSetParenthesis = callbacks->onSetParenthesis;
+    instance->onNoRightParenAdded = callbacks->onNoRightParenAdded;
+    instance->onMaxDigitsReached = callbacks->onMaxDigitsReached;
+    instance->onBinaryOperatorReceived = callbacks->onBinaryOperatorReceived;
+    instance->onHistoryItemAdded = callbacks->onHistoryItemAdded;
+    instance->onSetMemorizedNumbers = callbacks->onSetMemorizedNumbers;
+    instance->onMemoryItemChanged = callbacks->onMemoryItemChanged;
+    instance->onInputChanged = callbacks->onInputChanged;
 }

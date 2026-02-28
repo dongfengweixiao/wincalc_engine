@@ -445,6 +445,62 @@ CALC_API int unit_converter_get_suggested_value(UnitConverterInstance* instance,
 #define UNIT_CMD_RESET ((CalculatorCommand)14)
 
 // ============================================================================
+// ICalcDisplay Callback Types
+// ============================================================================
+
+// Callback function types for ICalcDisplay interface
+// These allow Dart to receive notifications from the calculator engine
+
+typedef void (*CalcDisplaySetPrimaryDisplayCallback)(const char* text, int isError, void* user_data);
+typedef void (*CalcDisplaySetIsInErrorCallback)(int isInError, void* user_data);
+typedef void (*CalcDisplaySetExpressionCallback)(const char* expression, void* user_data);
+typedef void (*CalcDisplaySetParenthesisCallback)(unsigned int count, void* user_data);
+typedef void (*CalcDisplayOnNoRightParenAddedCallback)(void* user_data);
+typedef void (*CalcDisplayMaxDigitsReachedCallback)(void* user_data);
+typedef void (*CalcDisplayBinaryOperatorReceivedCallback)(void* user_data);
+typedef void (*CalcDisplayOnHistoryItemAddedCallback)(unsigned int addedItemIndex, void* user_data);
+typedef void (*CalcDisplaySetMemorizedNumbersCallback)(const char* json_numbers, void* user_data);
+typedef void (*CalcDisplayMemoryItemChangedCallback)(unsigned int indexOfMemory, void* user_data);
+typedef void (*CalcDisplayInputChangedCallback)(void* user_data);
+
+// ============================================================================
+// ICalcDisplay Callback Registration Functions
+// ============================================================================
+
+// Set the user data pointer that will be passed to all callbacks
+CALC_API void calculator_set_callback_user_data(CalculatorInstance* instance, void* user_data);
+
+// Register individual callbacks (pass NULL to unregister)
+CALC_API void calculator_set_primary_display_callback(CalculatorInstance* instance, CalcDisplaySetPrimaryDisplayCallback callback);
+CALC_API void calculator_set_is_in_error_callback(CalculatorInstance* instance, CalcDisplaySetIsInErrorCallback callback);
+CALC_API void calculator_set_expression_callback(CalculatorInstance* instance, CalcDisplaySetExpressionCallback callback);
+CALC_API void calculator_set_parenthesis_callback(CalculatorInstance* instance, CalcDisplaySetParenthesisCallback callback);
+CALC_API void calculator_set_no_right_paren_callback(CalculatorInstance* instance, CalcDisplayOnNoRightParenAddedCallback callback);
+CALC_API void calculator_set_max_digits_callback(CalculatorInstance* instance, CalcDisplayMaxDigitsReachedCallback callback);
+CALC_API void calculator_set_binary_operator_callback(CalculatorInstance* instance, CalcDisplayBinaryOperatorReceivedCallback callback);
+CALC_API void calculator_set_history_item_added_callback(CalculatorInstance* instance, CalcDisplayOnHistoryItemAddedCallback callback);
+CALC_API void calculator_set_memorized_numbers_callback(CalculatorInstance* instance, CalcDisplaySetMemorizedNumbersCallback callback);
+CALC_API void calculator_set_memory_item_changed_callback(CalculatorInstance* instance, CalcDisplayMemoryItemChangedCallback callback);
+CALC_API void calculator_set_input_changed_callback(CalculatorInstance* instance, CalcDisplayInputChangedCallback callback);
+
+// Convenience function to register all callbacks at once (pass NULL for any callback you don't need)
+typedef struct CalcDisplayCallbacks {
+    CalcDisplaySetPrimaryDisplayCallback onSetPrimaryDisplay;
+    CalcDisplaySetIsInErrorCallback onSetIsInError;
+    CalcDisplaySetExpressionCallback onSetExpression;
+    CalcDisplaySetParenthesisCallback onSetParenthesis;
+    CalcDisplayOnNoRightParenAddedCallback onNoRightParenAdded;
+    CalcDisplayMaxDigitsReachedCallback onMaxDigitsReached;
+    CalcDisplayBinaryOperatorReceivedCallback onBinaryOperatorReceived;
+    CalcDisplayOnHistoryItemAddedCallback onHistoryItemAdded;
+    CalcDisplaySetMemorizedNumbersCallback onSetMemorizedNumbers;
+    CalcDisplayMemoryItemChangedCallback onMemoryItemChanged;
+    CalcDisplayInputChangedCallback onInputChanged;
+} CalcDisplayCallbacks;
+
+CALC_API void calculator_set_all_callbacks(CalculatorInstance* instance, const CalcDisplayCallbacks* callbacks);
+
+// ============================================================================
 // Backward Compatibility (old function names)
 // ============================================================================
 

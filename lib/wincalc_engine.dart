@@ -653,6 +653,148 @@ external int unit_converter_get_suggested_value(
   int unit_buffer_size,
 );
 
+/// Set the user data pointer that will be passed to all callbacks
+@ffi.Native<
+  ffi.Void Function(ffi.Pointer<CalculatorInstance>, ffi.Pointer<ffi.Void>)
+>()
+external void calculator_set_callback_user_data(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<ffi.Void> user_data,
+);
+
+/// Register individual callbacks (pass NULL to unregister)
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplaySetPrimaryDisplayCallback,
+  )
+>()
+external void calculator_set_primary_display_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplaySetPrimaryDisplayCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplaySetIsInErrorCallback,
+  )
+>()
+external void calculator_set_is_in_error_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplaySetIsInErrorCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplaySetExpressionCallback,
+  )
+>()
+external void calculator_set_expression_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplaySetExpressionCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplaySetParenthesisCallback,
+  )
+>()
+external void calculator_set_parenthesis_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplaySetParenthesisCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayOnNoRightParenAddedCallback,
+  )
+>()
+external void calculator_set_no_right_paren_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayOnNoRightParenAddedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayMaxDigitsReachedCallback,
+  )
+>()
+external void calculator_set_max_digits_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayMaxDigitsReachedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayBinaryOperatorReceivedCallback,
+  )
+>()
+external void calculator_set_binary_operator_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayBinaryOperatorReceivedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayOnHistoryItemAddedCallback,
+  )
+>()
+external void calculator_set_history_item_added_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayOnHistoryItemAddedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplaySetMemorizedNumbersCallback,
+  )
+>()
+external void calculator_set_memorized_numbers_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplaySetMemorizedNumbersCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayMemoryItemChangedCallback,
+  )
+>()
+external void calculator_set_memory_item_changed_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayMemoryItemChangedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    CalcDisplayInputChangedCallback,
+  )
+>()
+external void calculator_set_input_changed_callback(
+  ffi.Pointer<CalculatorInstance> instance,
+  CalcDisplayInputChangedCallback callback,
+);
+
+@ffi.Native<
+  ffi.Void Function(
+    ffi.Pointer<CalculatorInstance>,
+    ffi.Pointer<CalcDisplayCallbacks>,
+  )
+>()
+external void calculator_set_all_callbacks(
+  ffi.Pointer<CalculatorInstance> instance,
+  ffi.Pointer<CalcDisplayCallbacks> callbacks,
+);
+
 /// ============================================================================
 /// Backward Compatibility (old function names)
 /// ============================================================================
@@ -790,6 +932,141 @@ enum MemoryCommand {
     335 => MEM_CMD_CLEAR,
     _ => throw ArgumentError('Unknown value for MemoryCommand: $value'),
   };
+}
+
+typedef CalcDisplaySetPrimaryDisplayCallbackFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Char> text,
+      ffi.Int isError,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef DartCalcDisplaySetPrimaryDisplayCallbackFunction =
+    void Function(
+      ffi.Pointer<ffi.Char> text,
+      int isError,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+
+/// Callback function types for ICalcDisplay interface
+/// These allow Dart to receive notifications from the calculator engine
+typedef CalcDisplaySetPrimaryDisplayCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplaySetPrimaryDisplayCallbackFunction>
+    >;
+typedef CalcDisplaySetIsInErrorCallbackFunction =
+    ffi.Void Function(ffi.Int isInError, ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplaySetIsInErrorCallbackFunction =
+    void Function(int isInError, ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplaySetIsInErrorCallback =
+    ffi.Pointer<ffi.NativeFunction<CalcDisplaySetIsInErrorCallbackFunction>>;
+typedef CalcDisplaySetExpressionCallbackFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Char> expression,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef DartCalcDisplaySetExpressionCallbackFunction =
+    void Function(
+      ffi.Pointer<ffi.Char> expression,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef CalcDisplaySetExpressionCallback =
+    ffi.Pointer<ffi.NativeFunction<CalcDisplaySetExpressionCallbackFunction>>;
+typedef CalcDisplaySetParenthesisCallbackFunction =
+    ffi.Void Function(ffi.UnsignedInt count, ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplaySetParenthesisCallbackFunction =
+    void Function(int count, ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplaySetParenthesisCallback =
+    ffi.Pointer<ffi.NativeFunction<CalcDisplaySetParenthesisCallbackFunction>>;
+typedef CalcDisplayOnNoRightParenAddedCallbackFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplayOnNoRightParenAddedCallbackFunction =
+    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayOnNoRightParenAddedCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplayOnNoRightParenAddedCallbackFunction>
+    >;
+typedef CalcDisplayMaxDigitsReachedCallbackFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplayMaxDigitsReachedCallbackFunction =
+    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayMaxDigitsReachedCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplayMaxDigitsReachedCallbackFunction>
+    >;
+typedef CalcDisplayBinaryOperatorReceivedCallbackFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplayBinaryOperatorReceivedCallbackFunction =
+    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayBinaryOperatorReceivedCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplayBinaryOperatorReceivedCallbackFunction>
+    >;
+typedef CalcDisplayOnHistoryItemAddedCallbackFunction =
+    ffi.Void Function(
+      ffi.UnsignedInt addedItemIndex,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef DartCalcDisplayOnHistoryItemAddedCallbackFunction =
+    void Function(int addedItemIndex, ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayOnHistoryItemAddedCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplayOnHistoryItemAddedCallbackFunction>
+    >;
+typedef CalcDisplaySetMemorizedNumbersCallbackFunction =
+    ffi.Void Function(
+      ffi.Pointer<ffi.Char> json_numbers,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef DartCalcDisplaySetMemorizedNumbersCallbackFunction =
+    void Function(
+      ffi.Pointer<ffi.Char> json_numbers,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef CalcDisplaySetMemorizedNumbersCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplaySetMemorizedNumbersCallbackFunction>
+    >;
+typedef CalcDisplayMemoryItemChangedCallbackFunction =
+    ffi.Void Function(
+      ffi.UnsignedInt indexOfMemory,
+      ffi.Pointer<ffi.Void> user_data,
+    );
+typedef DartCalcDisplayMemoryItemChangedCallbackFunction =
+    void Function(int indexOfMemory, ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayMemoryItemChangedCallback =
+    ffi.Pointer<
+      ffi.NativeFunction<CalcDisplayMemoryItemChangedCallbackFunction>
+    >;
+typedef CalcDisplayInputChangedCallbackFunction =
+    ffi.Void Function(ffi.Pointer<ffi.Void> user_data);
+typedef DartCalcDisplayInputChangedCallbackFunction =
+    void Function(ffi.Pointer<ffi.Void> user_data);
+typedef CalcDisplayInputChangedCallback =
+    ffi.Pointer<ffi.NativeFunction<CalcDisplayInputChangedCallbackFunction>>;
+
+/// Convenience function to register all callbacks at once (pass NULL for any callback you don't need)
+final class CalcDisplayCallbacks extends ffi.Struct {
+  external CalcDisplaySetPrimaryDisplayCallback onSetPrimaryDisplay;
+
+  external CalcDisplaySetIsInErrorCallback onSetIsInError;
+
+  external CalcDisplaySetExpressionCallback onSetExpression;
+
+  external CalcDisplaySetParenthesisCallback onSetParenthesis;
+
+  external CalcDisplayOnNoRightParenAddedCallback onNoRightParenAdded;
+
+  external CalcDisplayMaxDigitsReachedCallback onMaxDigitsReached;
+
+  external CalcDisplayBinaryOperatorReceivedCallback onBinaryOperatorReceived;
+
+  external CalcDisplayOnHistoryItemAddedCallback onHistoryItemAdded;
+
+  external CalcDisplaySetMemorizedNumbersCallback onSetMemorizedNumbers;
+
+  external CalcDisplayMemoryItemChangedCallback onMemoryItemChanged;
+
+  external CalcDisplayInputChangedCallback onInputChanged;
 }
 
 const int CMD_0 = 130;

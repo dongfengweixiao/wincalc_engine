@@ -1,3 +1,24 @@
+## 0.0.10
+
+### Added
+
+- **Callback Support for Calculator Instance**
+  - Added `calculator_set_callback_user_data()` for setting user data pointer passed to all callbacks
+  - Added individual callback registration functions:
+    - `calculator_set_primary_display_callback()` - Register primary display update callback
+    - `calculator_set_is_in_error_callback()` - Register error state change callback
+    - `calculator_set_expression_callback()` - Register expression display callback
+    - `calculator_set_parenthesis_callback()` - Register parenthesis count callback
+    - `calculator_set_no_right_paren_callback()` - Register no right parenthesis callback
+    - `calculator_set_max_digits_callback()` - Register max digits reached callback
+    - `calculator_set_binary_operator_callback()` - Register binary operator received callback
+    - `calculator_set_history_item_added_callback()` - Register history item added callback
+    - `calculator_set_memorized_numbers_callback()` - Register memorized numbers callback
+    - `calculator_set_memory_item_changed_callback()` - Register memory item changed callback
+    - `calculator_set_input_changed_callback()` - Register input changed callback
+  - Implemented callback mechanism in C++ `CalcDisplayImpl` class
+  - Updated calculator submodule with callback infrastructure
+
 ## 0.0.9
 
 ### Added
